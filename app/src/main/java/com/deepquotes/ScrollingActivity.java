@@ -11,6 +11,8 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.Toast;
 
 public class ScrollingActivity extends AppCompatActivity {
 
@@ -27,6 +29,40 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+            }
+        });
+
+        Button btn1 = findViewById(R.id.btn1);
+        Button btn2 = findViewById(R.id.btn2);
+        Button btn3 = findViewById(R.id.btn3);
+        Button btn4 = findViewById(R.id.btn4);
+
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Quotes().getHitokotoQuotes(ScrollingActivity.this);
+                //Toast.makeText(ScrollingActivity.this,new Quotes().getHitokotoQuotes(ScrollingActivity.this),Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(ScrollingActivity.this,new Quotes().getDeepQuotes(),Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btn3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(ScrollingActivity.this,new Quotes().getDeepQuotes2(),Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btn4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(ScrollingActivity.this,new Quotes().getDeepQuotes3(),Toast.LENGTH_SHORT).show();
             }
         });
     }
