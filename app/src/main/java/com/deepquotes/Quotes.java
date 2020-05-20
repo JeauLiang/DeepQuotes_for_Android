@@ -21,8 +21,6 @@ import okhttp3.Response;
 public class Quotes {
 
     //https://www.nihaowua.com/home.html
-    //public enum QuotesType{HIKOTOKO,};
-
 
 
 
