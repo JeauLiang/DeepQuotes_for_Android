@@ -1,18 +1,29 @@
 package com.deepquotes;
 
+import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
@@ -32,10 +43,13 @@ public class ScrollingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        SeekBar fontSize = findViewById(R.id.font_size);
+
+
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -44,82 +58,64 @@ public class ScrollingActivity extends AppCompatActivity {
             }
         });
 
-        Button btn1 = findViewById(R.id.btn1);
-        Button btn2 = findViewById(R.id.btn2);
-        Button btn3 = findViewById(R.id.btn3);
-        Button btn4 = findViewById(R.id.btn4);
-
-        btn1.setOnClickListener(new View.OnClickListener() {
+        TextView freshTimeItem = findViewById(R.id.fresh_time_item);
+        freshTimeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Quotes().getHitokotoQuotes(new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        Toast.makeText(ScrollingActivity.this,"网络请求失败",Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String data = response.body().string();
-                        //Toast.makeText(ScrollingActivity.this,data,Toast.LENGTH_SHORT).show();
-                        Log.d("API",data);
-                    }
-                });
-                //Toast.makeText(ScrollingActivity.this,new Quotes().getHitokotoQuotes(ScrollingActivity.this),Toast.LENGTH_SHORT).show();
+                DatePickerDialog.Builder dialog = new DatePickerDialog.Builder(ScrollingActivity.this);
+                dialog.setTitle("请选择刷新时间");
+                dialog.show();
             }
         });
 
-        btn2.setOnClickListener(new View.OnClickListener() {
+        final Switch isenableHitokoto = findViewById(R.id.is_enable_hitokoto);
+        final Spinner quotesType  = findViewById(R.id.quotes_type);
+        final TextView textType = findViewById(R.id.quotes_type_text);
+
+        if (!isenableHitokoto.isChecked()){
+            quotesType.setEnabled(false);
+            quotesType.setSelected(false);
+            textType.setTextColor(Color.GRAY);
+        }else {
+            quotesType.setEnabled(true);
+            textType.setTextColor(Color.BLACK);
+        }
+
+        isenableHitokoto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                new Quotes().getDeepQuotes();
-                //Toast.makeText(ScrollingActivity.this,new Quotes().getDeepQuotes(),Toast.LENGTH_SHORT).show();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isCheck) {
+                if (isCheck){
+                    if (isenableHitokoto.isChecked()){
+                        quotesType.setEnabled(true);
+                        textType.setTextColor(Color.BLACK);
+                    }
+                }else {
+                    quotesType.setEnabled(false);
+                    quotesType.setSelected(false);
+                    textType.setTextColor(Color.GRAY);
+                }
             }
         });
 
-        btn3.setOnClickListener(new View.OnClickListener() {
+
+
+        Spinner typeSpinner = findViewById(R.id.quotes_type);
+        ArrayAdapter typeAdapter = new ArrayAdapter(this,R.layout.quotes_type_layout);
+        typeSpinner.setAdapter(typeAdapter);
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View view) {
-                new Quotes().getDeepQuotes2(new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(ScrollingActivity.this,"u selected"+view,Toast.LENGTH_SHORT).show();
+            }
 
-                    }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String data = response.body().string();
-                        Log.d("API",data);
-                    }
-                });
-                // Toast.makeText(ScrollingActivity.this,new Quotes().getDeepQuotes2(),Toast.LENGTH_SHORT).show();
             }
         });
 
-        btn4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //new Quotes().getDeepQuotes3();
-                //Toast.makeText(ScrollingActivity.this,new Quotes().getDeepQuotes3(),Toast.LENGTH_SHORT).show();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Document document = null;
-                        try {
-                            document = Jsoup.connect("https://www.nihaowua.com/home.html").get();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        Elements element = document.select("section");
-                        for (int i=0;i<element.size();i++){
-                            String data = element.get(i).select("p").text();
-                            Log.d("API",data);
-                        }
-                    }
-                }).start();
 
-            }
-        });
+
     }
 
     @Override
@@ -142,4 +138,6 @@ public class ScrollingActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }
