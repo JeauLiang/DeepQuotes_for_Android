@@ -71,23 +71,14 @@
                     android:orientation="horizontal"
                     android:id="@+id/quotes_type_layout">
                     <TextView
-                        android:id="@+id/quotes_type_text"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/hitokoto_type"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="5"
                         android:padding="15dp"
                         android:text="一言句子类型"
                         android:textColor="#000"
                         android:textSize="15sp"/>
-                    <Spinner
-                        android:id="@+id/quotes_type"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:padding="10dp"
-                        android:spinnerMode="dialog"
-                        android:layout_marginRight="10dp"
-                        android:entries="@layout/quotes_type_layout"/>
                 </LinearLayout>
 
 

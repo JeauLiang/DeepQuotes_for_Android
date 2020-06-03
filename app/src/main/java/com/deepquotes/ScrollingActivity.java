@@ -1,6 +1,7 @@
 package com.deepquotes;
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -32,6 +33,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -64,20 +66,21 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onClick(View view) {
                 DatePickerDialog.Builder dialog = new DatePickerDialog.Builder(ScrollingActivity.this);
                 dialog.setTitle("请选择刷新时间");
+//                View view1 = LayoutInflater.from(ScrollingActivity.this).inflate(R.layout.quotes_type_layout,null,false);
+//                dialog.setView(view1);
                 dialog.show();
+
             }
         });
 
         final Switch isenableHitokoto = findViewById(R.id.is_enable_hitokoto);
-        final Spinner quotesType  = findViewById(R.id.quotes_type);
-        final TextView textType = findViewById(R.id.quotes_type_text);
+        final TextView textType = findViewById(R.id.hitokoto_type);
 
         if (!isenableHitokoto.isChecked()){
-            quotesType.setEnabled(false);
-            quotesType.setSelected(false);
+            textType.setClickable(false);
             textType.setTextColor(Color.GRAY);
         }else {
-            quotesType.setEnabled(true);
+            textType.setClickable(true);
             textType.setTextColor(Color.BLACK);
         }
 
@@ -86,33 +89,43 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isCheck) {
                 if (isCheck){
                     if (isenableHitokoto.isChecked()){
-                        quotesType.setEnabled(true);
+                        textType.setClickable(true);
                         textType.setTextColor(Color.BLACK);
                     }
                 }else {
-                    quotesType.setEnabled(false);
-                    quotesType.setSelected(false);
+                    textType.setClickable(false);
                     textType.setTextColor(Color.GRAY);
                 }
             }
         });
 
-
-
-        Spinner typeSpinner = findViewById(R.id.quotes_type);
-        ArrayAdapter typeAdapter = new ArrayAdapter(this,R.layout.quotes_type_layout);
-        typeSpinner.setAdapter(typeAdapter);
-        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        textType.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(ScrollingActivity.this,"u selected"+view,Toast.LENGTH_SHORT).show();
-            }
+            public void onClick(View view) {
+                AlertDialog.Builder TypeBuilder = new AlertDialog.Builder(ScrollingActivity.this);
+                TypeBuilder.setTitle("选择一言句子类型");
+                View layoutView = LayoutInflater.from(ScrollingActivity.this).inflate(R.layout.quotes_type_layout,null);
+                TypeBuilder.setView(layoutView);
+                TypeBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+                    }
+                });
+                TypeBuilder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
+                    }
+                });
+                TypeBuilder.show();
             }
         });
+
+
+
+
+
 
 
 
@@ -137,6 +150,20 @@ public class ScrollingActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public void selectHitokotoType(){
+        ArrayList selection = new ArrayList();
+        String[] types = {"随机","动画、漫画","游戏","文学","影视","诗词","网易云"};
+        AlertDialog.Builder TypeBuilder = new AlertDialog.Builder(ScrollingActivity.this);
+        TypeBuilder.setMultiChoiceItems(types, null, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+
+            }
+        });
+
     }
 
 
