@@ -14,7 +14,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -25,32 +28,53 @@ import static android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE;
 
 public class QuotesWidgetProvider extends AppWidgetProvider {
 
+    public static final String ACTION_CLICK = "com.deepquotes.ACTION_CLICK";
+    private static Set idsSet = new HashSet();
+    public static int mIndex;
+
     //窗口小部件点击时调用
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         String action = intent.getAction();
-        switch (action){
-            case ACTION_APPWIDGET_UPDATE:
-                Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
-                break;
-            case ACTION_APPWIDGET_DELETED:
-                Toast.makeText(context,"你删除了控件",Toast.LENGTH_SHORT).show();
-                break;
-            default:
-                Toast.makeText(context,"default",Toast.LENGTH_SHORT).show();
-                break;
+        if (ACTION_CLICK.equals(action)) {
+            Toast.makeText(context, "你点击了控件", Toast.LENGTH_SHORT).show();
+            //getQuotes(context);
+            //updateAllWidget();
         }
-        //Toast.makeText(context,"你点击了控件",Toast.LENGTH_SHORT).show();
-        //getQuotes(context);
     }
+
+    private void updateAllWidget(Context context, AppWidgetManager appWidgetManager, Set set) {
+        int appId;
+        Iterator it = set.iterator();
+
+        mIndex++;
+
+        while (it.hasNext()){
+            appId = ((Integer)it.next()).intValue();
+
+            RemoteViews remoteViews = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
+            remoteViews.setTextViewText(R.id.quotes_textview,String.valueOf(mIndex));
+            remoteViews.setOnClickPendingIntent(R.id.quotes_textview,updateQuotesIntent(context));
+        }
+    }
+
+    private PendingIntent updateQuotesIntent(Context context) {
+        Intent intent = new Intent();
+        intent.setClass(context,QuotesWidgetProvider.class);
+        intent.addCategory(Intent.CATEGORY_ALTERNATIVE);
+        PendingIntent pi = PendingIntent.getBroadcast(context,0,intent,0);
+        return pi;
+
+    }
+
 
     //窗口小部件更新时时调用
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
         //Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
-
+        
 
     }
 

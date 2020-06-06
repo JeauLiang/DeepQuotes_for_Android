@@ -1,6 +1,5 @@
 package com.deepquotes;
 
-import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -12,43 +11,31 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
-
 public class ScrollingActivity extends AppCompatActivity {
+
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
+        TextView fontSizeTextView = findViewById(R.id.font_size_textview);
+        TextView refreshTimeTextView = findViewById(R.id.refresh_time_textview);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        SeekBar fontSize = findViewById(R.id.font_size);
-
-
         setSupportActionBar(toolbar);
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -60,16 +47,17 @@ public class ScrollingActivity extends AppCompatActivity {
             }
         });
 
-        TextView freshTimeItem = findViewById(R.id.fresh_time_item);
-        freshTimeItem.setOnClickListener(new View.OnClickListener() {
+
+        refreshTimeTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DatePickerDialog.Builder dialog = new DatePickerDialog.Builder(ScrollingActivity.this);
-                dialog.setTitle("请选择刷新时间");
-//                View view1 = LayoutInflater.from(ScrollingActivity.this).inflate(R.layout.quotes_type_layout,null,false);
-//                dialog.setView(view1);
-                dialog.show();
-
+                seekBarSelect("当前刷新间隔(分钟):",120);
+            }
+        });
+        fontSizeTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                seekBarSelect("字体大小:",25);
             }
         });
 
@@ -83,6 +71,7 @@ public class ScrollingActivity extends AppCompatActivity {
             textType.setClickable(true);
             textType.setTextColor(Color.BLACK);
         }
+
 
         isenableHitokoto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -106,6 +95,7 @@ public class ScrollingActivity extends AppCompatActivity {
                 TypeBuilder.setTitle("选择一言句子类型");
                 View layoutView = LayoutInflater.from(ScrollingActivity.this).inflate(R.layout.quotes_type_layout,null);
                 TypeBuilder.setView(layoutView);
+
                 TypeBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -118,6 +108,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
                     }
                 });
+
                 TypeBuilder.show();
             }
         });
@@ -125,11 +116,49 @@ public class ScrollingActivity extends AppCompatActivity {
 
 
 
-
-
-
-
     }
+
+    public void seekBarSelect(final String text,int MaxProgress){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        //builder.setTitle("请选择刷新间隔");
+        View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
+        builder.setView(layoutView);
+        SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.time_seekbar);
+        refreshTimeSeekBar.setMax(MaxProgress);
+        final TextView textView = layoutView.findViewById(R.id.time_show_textview);
+        textView.setText(text);
+        refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                textView.setText(text+i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.show();
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -165,6 +194,9 @@ public class ScrollingActivity extends AppCompatActivity {
         });
 
     }
+
+
+
 
 
 }

@@ -38,7 +38,7 @@
                     android:layout_height="50dp"
                     android:orientation="horizontal">
                     <TextView
-                        android:id="@+id/fresh_time_item"
+                        android:id="@+id/refresh_time_textview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:padding="15dp"
@@ -80,8 +80,6 @@
                         android:textColor="#000"
                         android:textSize="15sp"/>
                 </LinearLayout>
-
-
 
             </LinearLayout>
 
@@ -133,24 +131,16 @@
                     android:layout_height="50dp"
                     android:orientation="horizontal">
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/font_size_textview"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="字体大小"
                         android:textSize="15sp"
                         android:padding="15dp"
                         android:textColor="#000"/>
-                    <SeekBar
-                        android:id="@+id/font_size"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_margin="10dp"
-                        android:layout_weight="5"
-                        android:max="50" />
 
                 </LinearLayout>
-
-
 
             </LinearLayout>
 
@@ -173,14 +163,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:text="关于"
+                    android:text="其它"
                     android:textColor="@color/colorAccent"
                     android:textSize="15sp" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:padding="15dp"
-                    android:text="版本：子鼠"
+                    android:text="历史记录"
                     android:textColor="#000"
                     android:textSize="15sp" />
                 <TextView
@@ -190,6 +180,13 @@
                     android:text="问题反馈"
                     android:textColor="#000"
                     android:textSize="15sp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:padding="15dp"
+                    android:text="版本：子鼠"
+                    android:textColor="#000"
+                    android:textSize="15sp" />
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
