@@ -24,19 +24,19 @@ import java.util.ArrayList;
 
 public class ScrollingActivity extends AppCompatActivity {
 
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
+
         TextView fontSizeTextView = findViewById(R.id.font_size_textview);
         TextView refreshTimeTextView = findViewById(R.id.refresh_time_textview);
+        final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto);
+        final TextView hitokotoType = findViewById(R.id.hitokoto_type);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -51,7 +51,7 @@ public class ScrollingActivity extends AppCompatActivity {
         refreshTimeTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                seekBarSelect("当前刷新间隔(分钟):",120);
+                seekBarSelect("当前刷新间隔(分钟):",119);
             }
         });
         fontSizeTextView.setOnClickListener(new View.OnClickListener() {
@@ -61,34 +61,33 @@ public class ScrollingActivity extends AppCompatActivity {
             }
         });
 
-        final Switch isenableHitokoto = findViewById(R.id.is_enable_hitokoto);
-        final TextView textType = findViewById(R.id.hitokoto_type);
 
-        if (!isenableHitokoto.isChecked()){
-            textType.setClickable(false);
-            textType.setTextColor(Color.GRAY);
+
+        if (!isEnableHitokoto.isChecked()){
+            hitokotoType.setClickable(false);
+            hitokotoType.setTextColor(Color.GRAY);
         }else {
-            textType.setClickable(true);
-            textType.setTextColor(Color.BLACK);
+            hitokotoType.setClickable(true);
+            hitokotoType.setTextColor(Color.BLACK);
         }
 
 
-        isenableHitokoto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        isEnableHitokoto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isCheck) {
                 if (isCheck){
-                    if (isenableHitokoto.isChecked()){
-                        textType.setClickable(true);
-                        textType.setTextColor(Color.BLACK);
+                    if (isEnableHitokoto.isChecked()){
+                        hitokotoType.setClickable(true);
+                        hitokotoType.setTextColor(Color.BLACK);
                     }
                 }else {
-                    textType.setClickable(false);
-                    textType.setTextColor(Color.GRAY);
+                    hitokotoType.setClickable(false);
+                    hitokotoType.setTextColor(Color.GRAY);
                 }
             }
         });
 
-        textType.setOnClickListener(new View.OnClickListener() {
+        hitokotoType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder TypeBuilder = new AlertDialog.Builder(ScrollingActivity.this);
@@ -114,8 +113,6 @@ public class ScrollingActivity extends AppCompatActivity {
         });
 
 
-
-
     }
 
     public void seekBarSelect(final String text,int MaxProgress){
@@ -123,14 +120,14 @@ public class ScrollingActivity extends AppCompatActivity {
         //builder.setTitle("请选择刷新间隔");
         View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
         builder.setView(layoutView);
-        SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.time_seekbar);
+        SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
         refreshTimeSeekBar.setMax(MaxProgress);
-        final TextView textView = layoutView.findViewById(R.id.time_show_textview);
+        final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
         textView.setText(text);
         refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                textView.setText(text+i);
+                textView.setText(text+(i+1));
             }
 
             @Override
@@ -192,6 +189,36 @@ public class ScrollingActivity extends AppCompatActivity {
 
             }
         });
+
+    }
+
+    public void selectFontStyle(View v){
+        final String[] styles = {"加粗","斜体"};
+        AlertDialog.Builder selectFontStyleBuilder = new AlertDialog.Builder(this);
+        final ArrayList selectedStyles = new ArrayList();
+
+        selectFontStyleBuilder.setMultiChoiceItems(styles, null, new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i, boolean isCheck) {
+                if (isCheck)
+                    selectedStyles.add(styles[i]);
+                else selectedStyles.remove(styles[i]);
+            }
+        });
+        selectFontStyleBuilder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        selectFontStyleBuilder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        selectFontStyleBuilder.show();
+
 
     }
 
