@@ -73,7 +73,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
-        //Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
         
 
     }
@@ -82,21 +82,21 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         super.onDeleted(context, appWidgetIds);
-        //Toast.makeText(context,"你删除了控件",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,"你删除了控件",Toast.LENGTH_SHORT).show();
     }
 
     //该窗口小部件第一次添加到桌面时调用该方法
     @Override
     public void onEnabled(Context context) {
         super.onEnabled(context);
-        //Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
     }
 
     //最后一个该窗口小部件删除时调用该方法
     @Override
     public void onDisabled(Context context) {
         super.onDisabled(context);
-        //Toast.makeText(context,"你删除了最后一个控件",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,"你删除了最后一个控件",Toast.LENGTH_SHORT).show();
     }
 
 
@@ -104,7 +104,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
-        //Toast.makeText(context,"你改变了控件大小",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,"你改变了控件大小",Toast.LENGTH_SHORT).show();
     }
 
 
@@ -112,7 +112,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds) {
         super.onRestored(context, oldWidgetIds, newWidgetIds);
-        //Toast.makeText(context,"你恢复控件",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,"你恢复控件",Toast.LENGTH_SHORT).show();
     }
 
     public void getQuotes(final Context context){

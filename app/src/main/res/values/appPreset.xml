@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--刷新时间，默认10分钟-->
+    <integer name="autoFreshTime"> 10 </integer>
+    <!--桌面小部件字体大小，默认10sp-->
+    <integer name="fontSize"> 10 </integer>
+    <color name="fontColor"> #000 </color>
+
+</resources>

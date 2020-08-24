@@ -63,9 +63,9 @@
                         android:layout_weight="5"
                         android:padding="15dp"
                         android:text="是否启用一言"
+                        android:background="?android:attr/selectableItemBackground"
                         android:textColor="#000"
                         android:textSize="15sp"
-                        android:background="?android:attr/selectableItemBackground"
                         android:clickable="true"/>
                     <Switch
                         android:id="@+id/is_enable_hitokoto"
@@ -84,7 +84,8 @@
                     android:textColor="#000"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"/>
+                    android:clickable="true"
+                    android:onClick="selectHitokotoType"/>
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
