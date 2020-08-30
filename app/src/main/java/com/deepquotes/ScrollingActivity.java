@@ -14,9 +14,12 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -34,9 +37,9 @@ import java.util.ArrayList;
 
 public class ScrollingActivity extends AppCompatActivity {
 
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor sharedPreferencesEditor;
-
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor sharedPreferencesEditor;
+    private DrawerLayout mDrawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +49,9 @@ public class ScrollingActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("data",MODE_PRIVATE);
         sharedPreferencesEditor = sharedPreferences.edit();
 
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
+        TextView historyTextView = findViewById(R.id.history_textview);
         TextView fontSizeTextView = findViewById(R.id.font_size_textview);
         TextView refreshTimeTextView = findViewById(R.id.refresh_time_textview);
         final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto);
@@ -95,7 +100,6 @@ public class ScrollingActivity extends AppCompatActivity {
             hitokotoType.setTextColor(Color.GRAY);
         }
 
-
         isEnableHitokoto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isCheck) {
@@ -114,8 +118,10 @@ public class ScrollingActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
-
+    public void showHistory(View view){
+        mDrawerLayout.openDrawer(Gravity.RIGHT);
     }
 
     public void seekBarSelect(final String text,int MaxProgress){
