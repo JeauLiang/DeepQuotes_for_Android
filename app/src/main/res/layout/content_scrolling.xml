@@ -177,6 +177,7 @@
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"/>
                 <TextView
+                    android:id="@+id/feedback"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:padding="15dp"
@@ -184,7 +185,8 @@
                     android:textColor="#000"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"/>
+                    android:clickable="true"
+                    android:onClick="feedBack"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="50dp"

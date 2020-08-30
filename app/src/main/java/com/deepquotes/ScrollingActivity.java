@@ -2,8 +2,10 @@ package com.deepquotes;
 
 import android.content.ClipData;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.icu.util.LocaleData;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -14,16 +16,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -49,6 +54,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
 
 
@@ -85,6 +91,8 @@ public class ScrollingActivity extends AppCompatActivity {
 //            hitokotoType.setClickable(true);
 //            hitokotoType.setTextColor(Color.BLACK);
             isEnableHitokoto.setChecked(false);
+            hitokotoType.setClickable(false);
+            hitokotoType.setTextColor(Color.GRAY);
         }
 
 
@@ -106,12 +114,6 @@ public class ScrollingActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-
-
-
-
 
 
     }
@@ -183,7 +185,7 @@ public class ScrollingActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-/**
+
     public void selectHitokotoType(View v){
 //        ArrayList selection = new ArrayList();
 //        String[] types = {"随机","动画、漫画","游戏","文学","影视","诗词","网易云"};
@@ -192,20 +194,44 @@ public class ScrollingActivity extends AppCompatActivity {
         View layoutView = LayoutInflater.from(this).inflate(R.layout.hitokoto_type_layout,null);
         TypeBuilder.setView(layoutView);
 
-        final CheckBox randomCheckbox = layoutView.findViewById(R.id.random_type);
-        final CheckBox abCheckbox = layoutView.findViewById(R.id.animation_type);
-        final CheckBox cCheckbox = layoutView.findViewById(R.id.game_type);
-        final CheckBox dCheckbox = layoutView.findViewById(R.id.literature_type);
-        final CheckBox hCheckbox = layoutView.findViewById(R.id.film_type);
-        final CheckBox iCheckbox = layoutView.findViewById(R.id.poetry_type);
-        final CheckBox jCheckbox = layoutView.findViewById(R.id.neteasemusic);
+//        final RadioGroup radioGroup1 = layoutView.findViewById(R.id.id1111);
+//        final RadioGroup radioGroup2 = layoutView.findViewById(R.id.id2222);
+
+//        RadioGroup.OnCheckedChangeListener listener = new RadioGroup.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+//                switch (radioGroup.getId()){
+//                    case R.id.id1111:
+//                        radioGroup2.clearCheck();
+//                        break;
+//                    case R.id.id2222:
+//                        radioGroup1.clearCheck();
+//                        break;
+//                    default:
+//                        throw new IllegalStateException("Unexpected value: " + radioGroup.getId());
+//                }
+//            }
+//        };
+
+//        radioGroup1.setOnCheckedChangeListener(listener);
+//        radioGroup2.setOnCheckedChangeListener(listener);
+
+        final CheckBox randomCheckbox = layoutView.findViewById(R.id.random_checkbox);
+        final CheckBox abCheckbox = layoutView.findViewById(R.id.animation_checkbox);
+        final CheckBox cCheckbox = layoutView.findViewById(R.id.game_checkbox);
+        final CheckBox dCheckbox = layoutView.findViewById(R.id.literature_checkbox);
+        final CheckBox hCheckbox = layoutView.findViewById(R.id.film_checkbox);
+        final CheckBox iCheckbox = layoutView.findViewById(R.id.poetry_checkbox);
+        final CheckBox jCheckbox = layoutView.findViewById(R.id.neteasemusic_checkbox);
 
         CompoundButton.OnCheckedChangeListener listener = new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isCheck) {
+//                sharedPreferencesEditor.putBoolean(compoundButton)
+//                Log.i("11111111111111111", compoundButton.id);
                 if (compoundButton.isChecked()) {
                     switch (compoundButton.getId()) {
-                        case R.id.random_type:
+                        case R.id.random_checkbox:
                             abCheckbox.setChecked(false);
                             cCheckbox.setChecked(false);
                             dCheckbox.setChecked(false);
@@ -218,6 +244,7 @@ public class ScrollingActivity extends AppCompatActivity {
                             break;
                     }
                  }
+                sharedPreferencesEditor.putBoolean(String.valueOf(compoundButton.getId()),isCheck);
             }
         };
 
@@ -229,31 +256,70 @@ public class ScrollingActivity extends AppCompatActivity {
         iCheckbox.setOnCheckedChangeListener(listener);
         jCheckbox.setOnCheckedChangeListener(listener);
 
+        TypeBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sharedPreferencesEditor.apply();
+            }
+        });
+        TypeBuilder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+
         TypeBuilder.show();
         //v.setBackgroundColor(Color.RED);
     }
- **/
-    public void selectHitokotoType(View v){
-        String[] hitokotoType = {"随机","动画、漫画","游戏","文学","影视","诗词","网易云"};
+ /**
+    public void selectHitokotoType(View view){
+        final String[] hitokotoType = {"随机","动画、漫画","游戏","文学","影视","诗词","网易云"};
         AlertDialog.Builder selectHitokotoTypeBuilder = new AlertDialog.Builder(this);
-        ArrayList<String> selecetType = new ArrayList<>();
-        final boolean checkedItems[] = {false};
+        final ArrayList<String> selecetType = new ArrayList<>();
+        boolean checkedItems[] = new boolean[8];
+        for (int m=0;m<hitokotoType.length;m++){
+            checkedItems[m]=sharedPreferences.getBoolean(hitokotoType[m],false);
+        }
         selectHitokotoTypeBuilder.setMultiChoiceItems(hitokotoType, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                
+            public void onClick(DialogInterface dialogInterface, int i, boolean isCheck) {
+
+                if (isCheck){
+                    selecetType.add(hitokotoType[i]);
+                }else {
+                    selecetType.remove(hitokotoType[i]);
+                }
+                sharedPreferencesEditor.putBoolean(hitokotoType[i],isCheck);
+            }
+        });
+        selectHitokotoTypeBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sharedPreferencesEditor.apply();
+            }
+        });
+        selectHitokotoTypeBuilder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Log.d("positiveButton i:"," "+i);
             }
         });
         selectHitokotoTypeBuilder.show();
 
     }
+ **/
 
     public void selectFontStyle(View v){
         final String[] styles = {"加粗","斜体"};
         final AlertDialog.Builder selectFontStyleBuilder = new AlertDialog.Builder(this);
         final ArrayList selectedStyles = new ArrayList();
 
-        selectFontStyleBuilder.setMultiChoiceItems(styles, null, new DialogInterface.OnMultiChoiceClickListener() {
+        boolean checkItems[] = new boolean[2];
+        for (int i=0;i<checkItems.length;i++)
+            checkItems[i] = sharedPreferences.getBoolean(styles[i],false);
+
+        selectFontStyleBuilder.setMultiChoiceItems(styles, checkItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean isCheck) {
                 if (isCheck)
@@ -276,6 +342,16 @@ public class ScrollingActivity extends AppCompatActivity {
         selectFontStyleBuilder.show();
 
 
+    }
+
+    public void feedBack(View view){
+        Intent intent = getPackageManager().getLaunchIntentForPackage("com.coolapk.market");
+        if (intent != null) {
+//            intent.putExtra("type", "110");
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }else
+            Toast.makeText(this,"你没有安装「酷安」app,请先安装",Toast.LENGTH_SHORT).show();
     }
 
 
