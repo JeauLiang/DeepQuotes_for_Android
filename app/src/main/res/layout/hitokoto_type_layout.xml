@@ -4,10 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-<RadioGroup
-    android:id="@+id/id1111"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
     <CheckBox
         android:id="@+id/random_checkbox"
         android:layout_width="match_parent"
@@ -17,11 +13,7 @@
         android:textSize="15sp"
         android:padding="15dp"
         android:layout_marginLeft="15dp"/>
-</RadioGroup>
-<RadioGroup
-    android:id="@+id/id2222"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+
     <CheckBox
         android:id="@+id/animation_checkbox"
         android:layout_width="match_parent"
@@ -70,6 +62,5 @@
         android:text="网易云"
         android:padding="15dp"
         android:layout_marginLeft="15dp"/>
-</RadioGroup>
 
 </LinearLayout>
