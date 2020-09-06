@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:text="随机"
+        android:checked="true"
         android:textSize="15sp"
         android:padding="15dp"
         android:layout_marginLeft="15dp"/>

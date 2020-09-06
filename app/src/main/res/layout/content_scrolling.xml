@@ -130,7 +130,8 @@
                     android:textColor="#000"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"/>
+                    android:clickable="true"
+                    android:onClick="selectFontColor"/>
                 <TextView
                     android:id="@+id/font_size_textview"
                     android:layout_width="match_parent"

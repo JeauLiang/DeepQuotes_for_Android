@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.icu.util.LocaleData;
 import android.os.Bundle;
 
+import com.dingmouren.colorpicker.ColorPickerDialog;
+import com.dingmouren.colorpicker.OnColorPickerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -145,6 +147,33 @@ public class ScrollingActivity extends AppCompatActivity {
     public void showHistory(View view){
         mDrawerLayout.openDrawer(Gravity.RIGHT);
     }
+
+    public void selectFontColor(View view){
+
+        ColorPickerDialog mColorPickerDialog = new ColorPickerDialog(view.getContext(),
+                getResources().getColor(R.color.colorPrimary),
+                false,
+                new OnColorPickerListener() {
+                    @Override
+                    public void onColorCancel(ColorPickerDialog dialog) {
+
+                    }
+
+                    @Override
+                    public void onColorChange(ColorPickerDialog dialog, int color) {
+
+                    }
+
+                    @Override
+                    public void onColorConfirm(ColorPickerDialog dialog, int color) {
+
+                    }
+                }
+        ).show();
+        
+
+    }
+
 
     public void seekBarSelect(final String text,int MaxProgress){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
