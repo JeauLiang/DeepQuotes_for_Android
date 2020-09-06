@@ -49,6 +49,9 @@ public class ScrollingActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor sharedPreferencesEditor;
     private DrawerLayout mDrawerLayout;
+    private TextView headlineTextView;
+
+    ColorPickerDialog mColorPickerDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +63,12 @@ public class ScrollingActivity extends AppCompatActivity {
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
-        TextView historyTextView = findViewById(R.id.history_textview);
+//        TextView historyTextView = findViewById(R.id.history_textview);
         TextView fontSizeTextView = findViewById(R.id.font_size_textview);
         TextView refreshTimeTextView = findViewById(R.id.refresh_time_textview);
         final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto);
         final TextView hitokotoType = findViewById(R.id.hitokoto_type);
+        headlineTextView = findViewById(R.id.headline_text_view);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -140,18 +144,8 @@ public class ScrollingActivity extends AppCompatActivity {
         QuotesAdapter adapter = new QuotesAdapter(myList);
         recyclerView.setAdapter(adapter);
 
-
-
-    }
-
-    public void showHistory(View view){
-        mDrawerLayout.openDrawer(Gravity.RIGHT);
-    }
-
-    public void selectFontColor(View view){
-
-        ColorPickerDialog mColorPickerDialog = new ColorPickerDialog(view.getContext(),
-                getResources().getColor(R.color.colorPrimary),
+        mColorPickerDialog = new ColorPickerDialog(this,
+                sharedPreferences.getInt("fontColor",Color.BLACK),
                 false,
                 new OnColorPickerListener() {
                     @Override
@@ -166,11 +160,26 @@ public class ScrollingActivity extends AppCompatActivity {
 
                     @Override
                     public void onColorConfirm(ColorPickerDialog dialog, int color) {
-
+                        Log.w("color",String.valueOf(color));
+                        headlineTextView.setTextColor(color);
+                        sharedPreferencesEditor.putInt("fontColor",color);
+                        sharedPreferencesEditor.apply();
                     }
                 }
-        ).show();
-        
+        );
+
+
+
+    }
+
+    public void showHistory(View view){
+        mDrawerLayout.openDrawer(Gravity.RIGHT);
+    }
+
+    public void selectFontColor(View view){
+
+       mColorPickerDialog.show();
+
 
     }
 
