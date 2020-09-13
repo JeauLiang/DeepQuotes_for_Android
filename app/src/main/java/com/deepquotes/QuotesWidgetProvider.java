@@ -5,6 +5,8 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -31,42 +33,42 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public static final String ACTION_CLICK = "com.deepquotes.ACTION_CLICK";
     private static Set idsSet = new HashSet();
     public static int mIndex;
+    private SharedPreferences sharedPreferences;
+//    //窗口小部件点击时调用
+//    @Override
+//    public void onReceive(Context context, Intent intent) {
+//        super.onReceive(context, intent);
+//        String action = intent.getAction();
+//        if (ACTION_CLICK.equals(action)) {
+//            Toast.makeText(context, "你点击了控件", Toast.LENGTH_SHORT).show();
+//            //getQuotes(context);
+//            //updateAllWidget();
+//        }
+//    }
 
-    //窗口小部件点击时调用
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        super.onReceive(context, intent);
-        String action = intent.getAction();
-        if (ACTION_CLICK.equals(action)) {
-            Toast.makeText(context, "你点击了控件", Toast.LENGTH_SHORT).show();
-            //getQuotes(context);
-            //updateAllWidget();
-        }
-    }
-
-    private void updateAllWidget(Context context, AppWidgetManager appWidgetManager, Set set) {
-        int appId;
-        Iterator it = set.iterator();
-
-        mIndex++;
-
-        while (it.hasNext()){
-            appId = ((Integer)it.next()).intValue();
-
-            RemoteViews remoteViews = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
-            remoteViews.setTextViewText(R.id.quotes_textview,String.valueOf(mIndex));
-            remoteViews.setOnClickPendingIntent(R.id.quotes_textview,updateQuotesIntent(context));
-        }
-    }
-
-    private PendingIntent updateQuotesIntent(Context context) {
-        Intent intent = new Intent();
-        intent.setClass(context,QuotesWidgetProvider.class);
-        intent.addCategory(Intent.CATEGORY_ALTERNATIVE);
-        PendingIntent pi = PendingIntent.getBroadcast(context,0,intent,0);
-        return pi;
-
-    }
+//    private void updateAllWidget(Context context, AppWidgetManager appWidgetManager, Set set) {
+//        int appId;
+//        Iterator it = set.iterator();
+//
+//        mIndex++;
+//
+//        while (it.hasNext()){
+//            appId = ((Integer)it.next()).intValue();
+//
+//            RemoteViews remoteViews = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
+//            remoteViews.setTextViewText(R.id.quotes_textview,String.valueOf(mIndex));
+//            remoteViews.setOnClickPendingIntent(R.id.quotes_textview,updateQuotesIntent(context));
+//        }
+//    }
+//
+//    private PendingIntent updateQuotesIntent(Context context) {
+//        Intent intent = new Intent();
+//        intent.setClass(context,QuotesWidgetProvider.class);
+//        intent.addCategory(Intent.CATEGORY_ALTERNATIVE);
+//        PendingIntent pi = PendingIntent.getBroadcast(context,0,intent,0);
+//        return pi;
+//
+//    }
 
 
     //窗口小部件更新时时调用
@@ -74,7 +76,14 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
         Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
-        
+        RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
+        views.setTextColor(R.id.quotes_textview,Color.WHITE);
+//        views.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
+        appWidgetManager.updateAppWidget(appWidgetIds,views);
+//        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.quotes_layout);
+////        views.setTextViewText(R.id.quotes_textview, "66666");
+////        // Instruct the widget manager to update the widget
+//        appWidgetManager.updateAppWidget(appWidgetIds, views);
 
     }
 
@@ -90,6 +99,9 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public void onEnabled(Context context) {
         super.onEnabled(context);
         Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
+//        Intent startTimerIntent = new Intent(context, TimerService.class);
+//        startTimerIntent.putExtra("refreshTime",sharedPreferences.getInt("当前刷新间隔(分钟):",10000));
+//        context.startService(startTimerIntent);
     }
 
     //最后一个该窗口小部件删除时调用该方法
@@ -97,6 +109,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public void onDisabled(Context context) {
         super.onDisabled(context);
         Toast.makeText(context,"你删除了最后一个控件",Toast.LENGTH_SHORT).show();
+        context.stopService(new Intent(context, TimerService.class));
     }
 
 

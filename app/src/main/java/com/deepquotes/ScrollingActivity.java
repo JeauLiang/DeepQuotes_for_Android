@@ -1,11 +1,12 @@
 package com.deepquotes;
 
-import android.content.ClipData;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.icu.util.LocaleData;
+import android.graphics.fonts.Font;
 import android.os.Bundle;
 
 import com.dingmouren.colorpicker.ColorPickerDialog;
@@ -13,29 +14,22 @@ import com.dingmouren.colorpicker.OnColorPickerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
+import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -43,6 +37,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
 public class ScrollingActivity extends AppCompatActivity {
 
@@ -54,7 +50,7 @@ public class ScrollingActivity extends AppCompatActivity {
     ColorPickerDialog mColorPickerDialog;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
 
@@ -65,13 +61,28 @@ public class ScrollingActivity extends AppCompatActivity {
 
 //        TextView historyTextView = findViewById(R.id.history_textview);
         TextView fontSizeTextView = findViewById(R.id.font_size_textview);
-        TextView refreshTimeTextView = findViewById(R.id.refresh_time_textview);
+        final TextView refreshTimeTextView = findViewById(R.id.refresh_time_textview);
         final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto);
         final TextView hitokotoType = findViewById(R.id.hitokoto_type);
         headlineTextView = findViewById(R.id.headline_text_view);
+        TextView updateNowTextView = findViewById(R.id.update_now);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        updateNowTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("刷新","u click updata");
+                RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
+                remoteViews.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
+                remoteViews.setTextColor(R.id.quotes_textview,sharedPreferences.getInt("fontColor",Color.WHITE));
+                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,sharedPreferences.getInt("字体大小:",10));
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
+                ComponentName cn = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
+                appWidgetManager.updateAppWidget(cn,remoteViews);
+            }
+        });
 
 
 
