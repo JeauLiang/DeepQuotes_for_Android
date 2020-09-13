@@ -102,18 +102,18 @@ public class ScrollingActivity extends AppCompatActivity {
         });
 
 
-        refreshTimeTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                seekBarSelect("当前刷新间隔(分钟):",119);
-            }
-        });
-        fontSizeTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                seekBarSelect("字体大小:",25);
-            }
-        });
+//        refreshTimeTextView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                seekBarSelect("当前刷新间隔(分钟):",119);
+//            }
+//        });
+//        fontSizeTextView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                seekBarSelect("字体大小:",25);
+//            }
+//        });
 
 
 
@@ -179,11 +179,11 @@ public class ScrollingActivity extends AppCompatActivity {
                         Log.w("color",String.valueOf(color));
                         headlineTextView.setTextColor(color);
 
-                        remoteViews.setTextColor(R.id.quotes_textview,color);
-                        appWidgetManager.updateAppWidget(componentName,remoteViews);
-
                         sharedPreferencesEditor.putInt("fontColor",color);
                         sharedPreferencesEditor.apply();
+
+                        remoteViews.setTextColor(R.id.quotes_textview,color);
+                        appWidgetManager.updateAppWidget(componentName,remoteViews);
                     }
                 }
         );
@@ -203,23 +203,22 @@ public class ScrollingActivity extends AppCompatActivity {
 
     }
 
-
-    public void seekBarSelect(final String text,int MaxProgress){
+    public void selectFontSize(View view){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
         builder.setView(layoutView);
 
         final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
-        refreshTimeSeekBar.setMax(MaxProgress);
-        refreshTimeSeekBar.setProgress(sharedPreferences.getInt(text,0));
+        refreshTimeSeekBar.setMax(25);
+        refreshTimeSeekBar.setProgress(sharedPreferences.getInt("字体大小:",0));
         final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
-        textView.setText(text + sharedPreferences.getInt(text,0));
-        final int[] stepTime = new int[1];
+        textView.setText("字体大小:" + sharedPreferences.getInt("字体大小:",0));
+//        final int[] stepTime = new int[1];
 
         refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                textView.setText(text+(i+1));
+                textView.setText("字体大小:"+(i+1));
             }
 
             @Override
@@ -229,14 +228,17 @@ public class ScrollingActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                stepTime[0] = seekBar.getProgress();
+//                stepTime[0] = seekBar.getProgress();
             }
         });
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                sharedPreferencesEditor.putInt(text,refreshTimeSeekBar.getProgress());
+                sharedPreferencesEditor.putInt("字体大小:",refreshTimeSeekBar.getProgress()+1);
                 sharedPreferencesEditor.apply();
+
+                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress()+1);
+                appWidgetManager.updateAppWidget(componentName,remoteViews);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -247,6 +249,98 @@ public class ScrollingActivity extends AppCompatActivity {
         });
         builder.show();
     }
+
+    public void selectRefreshTime(View view){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
+        builder.setView(layoutView);
+
+        final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
+        refreshTimeSeekBar.setMax(119);
+        refreshTimeSeekBar.setProgress(sharedPreferences.getInt("当前刷新间隔(分钟):",0));
+        final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
+        textView.setText("当前刷新间隔(分钟):" + sharedPreferences.getInt("当前刷新间隔(分钟):",0));
+//        final int[] stepTime = new int[1];
+
+        refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                textView.setText("当前刷新间隔(分钟):"+(i+1));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+//                stepTime[0] = seekBar.getProgress();
+            }
+        });
+        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                sharedPreferencesEditor.putInt("当前刷新间隔(分钟):",refreshTimeSeekBar.getProgress()+1);
+                sharedPreferencesEditor.apply();
+
+//                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress()+1);
+//                appWidgetManager.updateAppWidget(componentName,remoteViews);
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.show();
+    }
+
+//
+//    public void seekBarSelect(final String text,int MaxProgress){
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
+//        builder.setView(layoutView);
+//
+//        final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
+//        refreshTimeSeekBar.setMax(MaxProgress);
+//        refreshTimeSeekBar.setProgress(sharedPreferences.getInt(text,0));
+//        final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
+//        textView.setText(text + sharedPreferences.getInt(text,0));
+//        final int[] stepTime = new int[1];
+//
+//        refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+//                textView.setText(text+(i+1));
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                stepTime[0] = seekBar.getProgress();
+//            }
+//        });
+//        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//                sharedPreferencesEditor.putInt(text,refreshTimeSeekBar.getProgress());
+//                sharedPreferencesEditor.apply();
+//            }
+//        });
+//        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//
+//            }
+//        });
+//        builder.show();
+//    }
 
 
 

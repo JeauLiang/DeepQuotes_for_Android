@@ -52,7 +52,8 @@
                     android:textColor="#000"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"/>
+                    android:clickable="true"
+                    android:onClick="selectRefreshTime"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -143,7 +144,8 @@
                     android:padding="15dp"
                     android:textColor="#000"
                     android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"/>
+                    android:clickable="true"
+                    android:onClick="selectFontSize"/>
 
             </LinearLayout>
 
