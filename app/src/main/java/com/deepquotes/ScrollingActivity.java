@@ -47,7 +47,11 @@ public class ScrollingActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private TextView headlineTextView;
 
-    ColorPickerDialog mColorPickerDialog;
+    private ColorPickerDialog mColorPickerDialog;
+
+    private RemoteViews remoteViews;
+    private AppWidgetManager appWidgetManager;
+    private ComponentName componentName;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -70,17 +74,18 @@ public class ScrollingActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
+        appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
+        componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
+
         updateNowTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("刷新","u click updata");
-                RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
                 remoteViews.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
                 remoteViews.setTextColor(R.id.quotes_textview,sharedPreferences.getInt("fontColor",Color.WHITE));
                 remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,sharedPreferences.getInt("字体大小:",10));
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
-                ComponentName cn = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
-                appWidgetManager.updateAppWidget(cn,remoteViews);
+                appWidgetManager.updateAppWidget(componentName,remoteViews);
             }
         });
 
@@ -149,7 +154,7 @@ public class ScrollingActivity extends AppCompatActivity {
         myList.add("456");
         myList.add("789");
         myList.add("000");
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        final RecyclerView recyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         QuotesAdapter adapter = new QuotesAdapter(myList);
@@ -173,6 +178,10 @@ public class ScrollingActivity extends AppCompatActivity {
                     public void onColorConfirm(ColorPickerDialog dialog, int color) {
                         Log.w("color",String.valueOf(color));
                         headlineTextView.setTextColor(color);
+
+                        remoteViews.setTextColor(R.id.quotes_textview,color);
+                        appWidgetManager.updateAppWidget(componentName,remoteViews);
+
                         sharedPreferencesEditor.putInt("fontColor",color);
                         sharedPreferencesEditor.apply();
                     }
