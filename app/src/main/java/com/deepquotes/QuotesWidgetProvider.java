@@ -128,51 +128,51 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
         Toast.makeText(context,"你恢复控件",Toast.LENGTH_SHORT).show();
     }
 
-    public void getQuotes(final Context context){
-        final int requestCode = new Random().nextInt(4);
-        switch (requestCode){
-            case 1:
-                new Quotes().getHitokotoQuotes(new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String responseData = response.body().string();
-                        try {
-                            JSONObject jsonObject = new JSONObject(responseData);
-                            Toast.makeText(context,jsonObject.get("hitokoto").toString(),Toast.LENGTH_SHORT).show();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                break;
-            case 2:
-                new Quotes().getDeepQuotes();
-                break;
-            case 3:
-                new Quotes().getDeepQuotes2(new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String responseData = response.body().string();
-                        Toast.makeText(context,responseData,Toast.LENGTH_SHORT).show();
-                    }
-                });
-                break;
-            case 4:
-                new Quotes().getDeepQuotes3();
-                break;
-            default:
-                break;
-        }
-    }
+//    public void getQuotes(final Context context){
+//        final int requestCode = new Random().nextInt(4);
+//        switch (requestCode){
+//            case 1:
+//                new Quotes().getHitokotoQuotes(new Callback() {
+//                    @Override
+//                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//                        String responseData = response.body().string();
+//                        try {
+//                            JSONObject jsonObject = new JSONObject(responseData);
+//                            Toast.makeText(context,jsonObject.get("hitokoto").toString(),Toast.LENGTH_SHORT).show();
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
+//                break;
+//            case 2:
+//                new Quotes().getDeepQuotes();
+//                break;
+//            case 3:
+//                new Quotes().getDeepQuotes2(new Callback() {
+//                    @Override
+//                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//                        String responseData = response.body().string();
+//                        Toast.makeText(context,responseData,Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//                break;
+//            case 4:
+//                new Quotes().getDeepQuotes3();
+//                break;
+//            default:
+//                break;
+//        }
+//    }
 
 }

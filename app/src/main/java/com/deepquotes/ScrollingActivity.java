@@ -14,6 +14,7 @@ import com.dingmouren.colorpicker.OnColorPickerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -21,6 +22,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -35,10 +38,26 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
+import static com.deepquotes.Quotes.UPDATE_TEXT;
 
 public class ScrollingActivity extends AppCompatActivity {
 
@@ -53,6 +72,10 @@ public class ScrollingActivity extends AppCompatActivity {
     private AppWidgetManager appWidgetManager;
     private ComponentName componentName;
 
+    private Handler handler;
+
+
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,8 +87,8 @@ public class ScrollingActivity extends AppCompatActivity {
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
 //        TextView historyTextView = findViewById(R.id.history_textview);
-        TextView fontSizeTextView = findViewById(R.id.font_size_textview);
-        final TextView refreshTimeTextView = findViewById(R.id.refresh_time_textview);
+//        TextView fontSizeTextView = findViewById(R.id.font_size_textview);
+//        final TextView refreshTimeTextView = findViewById(R.id.refresh_time_textview);
         final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto);
         final TextView hitokotoType = findViewById(R.id.hitokoto_type);
         headlineTextView = findViewById(R.id.headline_text_view);
@@ -78,14 +101,38 @@ public class ScrollingActivity extends AppCompatActivity {
         appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
 
+        handler = new Handler(){
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what){
+                    case UPDATE_TEXT:
+                        String textMessage = msg.obj.toString();
+                        headlineTextView.setText(textMessage);
+
+                        remoteViews.setTextViewText(R.id.quotes_textview,textMessage);
+                        remoteViews.setTextColor(R.id.quotes_textview,sharedPreferences.getInt("fontColor",Color.WHITE));
+                        remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,sharedPreferences.getInt("字体大小:",10));
+                        appWidgetManager.updateAppWidget(componentName,remoteViews);
+                }
+            }
+        };
+
+
         updateNowTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("刷新","u click updata");
-                remoteViews.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
-                remoteViews.setTextColor(R.id.quotes_textview,sharedPreferences.getInt("fontColor",Color.WHITE));
-                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,sharedPreferences.getInt("字体大小:",10));
-                appWidgetManager.updateAppWidget(componentName,remoteViews);
+
+                if (sharedPreferences.getBoolean("isEnableHitokoto",false)) {
+                    getDeepQuotes(new Random().nextInt(3));
+                }else
+                    getDeepQuotes(new Random().nextInt(4));
+
+//                remoteViews.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
+//                remoteViews.setTextColor(R.id.quotes_textview,sharedPreferences.getInt("fontColor",Color.WHITE));
+//                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,sharedPreferences.getInt("字体大小:",10));
+//                appWidgetManager.updateAppWidget(componentName,remoteViews);
             }
         });
 
@@ -532,6 +579,125 @@ public class ScrollingActivity extends AppCompatActivity {
             startActivity(intent);
         }else
             Toast.makeText(this,"你没有安装「酷安」app,请先安装",Toast.LENGTH_SHORT).show();
+    }
+
+    private void getDeepQuotes(int seed){
+        switch (seed){
+            case 0:
+                getDeepQuote();
+                break;
+            case 1:
+                getDeepQuote2();
+                break;
+            case 2:
+                getDeepQuote3(new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String responseStr = response.body().string();
+                        Log.d("DeepQuote3",responseStr);
+
+                        Message message = new Message();
+                        message.what = UPDATE_TEXT;
+                        message.obj = responseStr;
+                        handler.sendMessage(message);
+                    }
+                });
+                break;
+            default:
+                getHitokotoQuote(new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String responseStr = response.body().string();
+                        Log.d("DeepQuote3",responseStr);
+
+                        Message message = new Message();
+                        message.what = UPDATE_TEXT;
+                        message.obj = responseStr;
+                        handler.sendMessage(message);
+                    }
+                });
+
+
+
+        }
+    }
+
+    private void getDeepQuote(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String data=null;
+                try {
+                    Document document = Jsoup.connect("http://www.nows.fun/").get();
+                    Elements element = document.select("div.main-wrapper");
+                    for (int i=0;i<element.size();i++) {
+                        data = element.get(i).select("span").text();
+                    }
+
+                    Message message = new Message();
+                    message.what = UPDATE_TEXT;
+                    message.obj = data;
+                    handler.sendMessage(message);
+
+                    Log.d("API", data);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        //return data;
+    }
+
+    private void getDeepQuote2(){
+        //https://www.nihaowua.com/home.html
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Document document = Jsoup.connect("https://www.nihaowua.com/home.html").get();
+                    Elements element = document.select("div.post55");
+                    String data = null;
+                    for (int i=0;i<element.size();i++){
+                        data = element.get(i).select("font").text();
+                        Log.d("API",data);
+                    }
+
+                    Message message = new Message();
+                    message.what = UPDATE_TEXT;
+                    message.obj = data;
+                    handler.sendMessage(message);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+
+    private void getDeepQuote3(Callback callback){
+        //https://www.apicp.cn/API/yan/api.php
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url("https://www.apicp.cn/API/yan/api.php").build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    private void getHitokotoQuote(Callback callback){
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url("https://v1.hitokoto.cn/").build();
+        client.newCall(request).enqueue(callback);
+
     }
 
 
