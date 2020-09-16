@@ -131,9 +131,9 @@ public class ScrollingActivity extends AppCompatActivity {
                 Log.d("刷新","u click updata");
 
                 if (sharedPreferences.getBoolean("isEnableHitokoto",false)) {
-                    getDeepQuotes(new Random().nextInt(3));
+                    getDeepQuotes(new Random().nextInt(3),"?c=j");
                 }else
-                    getDeepQuotes(new Random().nextInt(4));
+                    getDeepQuotes(new Random().nextInt(4),"?c=j&c=l");
 
 //                remoteViews.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
 //                remoteViews.setTextColor(R.id.quotes_textview,sharedPreferences.getInt("fontColor",Color.WHITE));
@@ -457,6 +457,7 @@ public class ScrollingActivity extends AppCompatActivity {
         final CheckBox iCheckbox = layoutView.findViewById(R.id.poetry_checkbox);
         final CheckBox jCheckbox = layoutView.findViewById(R.id.neteasemusic_checkbox);
 
+
         CompoundButton.OnCheckedChangeListener listener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isCheck) {
@@ -505,6 +506,7 @@ public class ScrollingActivity extends AppCompatActivity {
         TypeBuilder.show();
         //v.setBackgroundColor(Color.RED);
     }
+
  /**
     public void selectHitokotoType(View view){
         final String[] hitokotoType = {"随机","动画、漫画","游戏","文学","影视","诗词","网易云"};
@@ -587,7 +589,7 @@ public class ScrollingActivity extends AppCompatActivity {
             Toast.makeText(this,"你没有安装「酷安」app,请先安装",Toast.LENGTH_SHORT).show();
     }
 
-    private void getDeepQuotes(int seed){
+    private void getDeepQuotes(int seed,String postParam){
         switch (seed){
             case 0:
                 getDeepQuote();
@@ -615,7 +617,7 @@ public class ScrollingActivity extends AppCompatActivity {
                 });
                 break;
             default:
-                getHitokotoQuote(new Callback() {
+                getHitokotoQuote(postParam,new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
@@ -704,10 +706,10 @@ public class ScrollingActivity extends AppCompatActivity {
         client.newCall(request).enqueue(callback);
     }
 
-    private void getHitokotoQuote(Callback callback){
+    private void getHitokotoQuote(String postParam,Callback callback){
 
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("https://v1.hitokoto.cn/").build();
+        Request request = new Request.Builder().url("https://v1.hitokoto.cn/"+postParam).build();
         client.newCall(request).enqueue(callback);
 
     }
