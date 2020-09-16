@@ -92,6 +92,7 @@ public class ScrollingActivity extends AppCompatActivity {
         final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto);
         final TextView hitokotoType = findViewById(R.id.hitokoto_type);
         headlineTextView = findViewById(R.id.headline_text_view);
+        headlineTextView.setTextColor(sharedPreferences.getInt("fontColor",Color.WHITE));
         TextView updateNowTextView = findViewById(R.id.update_now);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -107,13 +108,18 @@ public class ScrollingActivity extends AppCompatActivity {
                 super.handleMessage(msg);
                 switch (msg.what){
                     case UPDATE_TEXT:
-                        String textMessage = msg.obj.toString();
-                        headlineTextView.setText(textMessage);
+                        if (msg.obj != null) {
+                            String textMessage = msg.obj.toString();
+                            headlineTextView.setText(textMessage);
 
-                        remoteViews.setTextViewText(R.id.quotes_textview,textMessage);
-                        remoteViews.setTextColor(R.id.quotes_textview,sharedPreferences.getInt("fontColor",Color.WHITE));
-                        remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,sharedPreferences.getInt("字体大小:",10));
-                        appWidgetManager.updateAppWidget(componentName,remoteViews);
+                            remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
+                            remoteViews.setTextColor(R.id.quotes_textview, sharedPreferences.getInt("fontColor", Color.WHITE));
+                            remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, sharedPreferences.getInt("字体大小:", 10));
+                            appWidgetManager.updateAppWidget(componentName, remoteViews);
+                        }
+                        break;
+                    default:break;
+
                 }
             }
         };
@@ -617,13 +623,19 @@ public class ScrollingActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String responseStr = response.body().string();
-                        Log.d("DeepQuote3",responseStr);
+                        try {
+                            String responseStr = response.body().string();
+                            JSONObject responseJSON = new JSONObject(responseStr);
+                            responseStr = responseJSON.getString("hitokoto");
+                            Log.d("hikotoko",responseStr);
 
-                        Message message = new Message();
-                        message.what = UPDATE_TEXT;
-                        message.obj = responseStr;
-                        handler.sendMessage(message);
+                            Message message = new Message();
+                            message.what = UPDATE_TEXT;
+                            message.obj = responseStr;
+                            handler.sendMessage(message);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
 
@@ -649,7 +661,7 @@ public class ScrollingActivity extends AppCompatActivity {
                     message.obj = data;
                     handler.sendMessage(message);
 
-                    Log.d("API", data);
+                    Log.d("DeepQuote1", data);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -669,7 +681,7 @@ public class ScrollingActivity extends AppCompatActivity {
                     String data = null;
                     for (int i=0;i<element.size();i++){
                         data = element.get(i).select("font").text();
-                        Log.d("API",data);
+                        Log.d("DeepQuote2",data);
                     }
 
                     Message message = new Message();
