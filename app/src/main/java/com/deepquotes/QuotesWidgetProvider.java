@@ -1,5 +1,6 @@
 package com.deepquotes;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -8,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -27,6 +29,7 @@ import okhttp3.Response;
 
 import static android.appwidget.AppWidgetManager.ACTION_APPWIDGET_DELETED;
 import static android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE;
+import static android.appwidget.AppWidgetManager.getInstance;
 
 public class QuotesWidgetProvider extends AppWidgetProvider {
 
@@ -34,6 +37,13 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     private static Set idsSet = new HashSet();
     public static int mIndex;
     private SharedPreferences sharedPreferences;
+
+    private PendingIntent pendingIntent = null;
+
+    private static final int UPDATE_DURATION = 10 * 1000; // Widget 更新间隔
+
+
+
 //    //窗口小部件点击时调用
 //    @Override
 //    public void onReceive(Context context, Intent intent) {
@@ -75,6 +85,16 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(context,TimerService.class);
+
+        if (pendingIntent == null){
+            pendingIntent = PendingIntent.getService(context,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),UPDATE_DURATION,pendingIntent);
+
         Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
         RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
         views.setTextColor(R.id.quotes_textview,Color.WHITE);
@@ -98,9 +118,10 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onEnabled(Context context) {
         super.onEnabled(context);
-        Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
+
+//        Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
 //        Intent startTimerIntent = new Intent(context, TimerService.class);
-//        startTimerIntent.putExtra("refreshTime",sharedPreferences.getInt("当前刷新间隔(分钟):",10000));
+////        startTimerIntent.putExtra("refreshTime",sharedPreferences.getInt("当前刷新间隔(分钟):",10));
 //        context.startService(startTimerIntent);
     }
 
@@ -109,7 +130,10 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public void onDisabled(Context context) {
         super.onDisabled(context);
         Toast.makeText(context,"你删除了最后一个控件",Toast.LENGTH_SHORT).show();
-        context.stopService(new Intent(context, TimerService.class));
+//        context.stopService(new Intent(context, TimerService.class));
+
+        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        manager.cancel(pendingIntent);
     }
 
 
@@ -127,6 +151,9 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
         super.onRestored(context, oldWidgetIds, newWidgetIds);
         Toast.makeText(context,"你恢复控件",Toast.LENGTH_SHORT).show();
     }
+
+
+
 
 //    public void getQuotes(final Context context){
 //        final int requestCode = new Random().nextInt(4);

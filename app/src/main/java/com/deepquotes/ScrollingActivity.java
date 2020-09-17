@@ -323,9 +323,10 @@ public class ScrollingActivity extends AppCompatActivity {
 
         final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
         refreshTimeSeekBar.setMax(119);
-        refreshTimeSeekBar.setProgress(sharedPreferences.getInt("当前刷新间隔(分钟):",0));
         final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
-        textView.setText("当前刷新间隔(分钟):" + sharedPreferences.getInt("当前刷新间隔(分钟):",0));
+
+        textView.setText("当前刷新间隔(分钟):" + sharedPreferences.getInt("当前刷新间隔(分钟):",10));
+        refreshTimeSeekBar.setProgress(sharedPreferences.getInt("当前刷新间隔(分钟):",10));
 //        final int[] stepTime = new int[1];
 
         refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -781,5 +782,8 @@ public class ScrollingActivity extends AppCompatActivity {
 
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

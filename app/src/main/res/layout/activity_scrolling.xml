@@ -36,6 +36,7 @@
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     android:text="欲买桂花同载酒，终不似，少年游"
+                    android:padding="15dp"
                     android:fontFamily="serif"
                     android:textSize="20sp"
                     android:gravity="center"
