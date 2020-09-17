@@ -623,7 +623,31 @@ public class ScrollingActivity extends AppCompatActivity {
                 getDeepQuote();
                 break;
             case 1:
-                getDeepQuote2();
+                getDeepQuote2(new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        try {
+                            String responseStr = response.body().string();
+                            JSONObject responseJSON = new JSONObject(responseStr);
+                            JSONObject quoteData = responseJSON.getJSONObject("data");
+                            responseStr = quoteData.getString("title");
+
+                            Log.d("DeepQuote2",responseStr);
+
+                            Message message = new Message();
+                            message.what = UPDATE_TEXT;
+                            message.obj = responseStr;
+                            handler.sendMessage(message);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
                 break;
             case 2:
                 getDeepQuote3(new Callback() {
@@ -638,7 +662,7 @@ public class ScrollingActivity extends AppCompatActivity {
                             String responseStr = response.body().string();
                             JSONObject responseJSON = new JSONObject(responseStr);
                             responseStr = responseJSON.getString("txt");
-                            
+
                             Log.d("DeepQuote3",responseStr);
 
                             Message message = new Message();
@@ -707,31 +731,36 @@ public class ScrollingActivity extends AppCompatActivity {
         //return data;
     }
 
-    private void getDeepQuote2(){
-        //https://www.nihaowua.com/home.html
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Document document = Jsoup.connect("https://www.nihaowua.com/home.html").get();
-                    Elements element = document.select("div.post97");
-                    String data = null;
-                    for (int i=0;i<element.size();i++){
-                        data = element.get(i).select("font").text();
-                        Log.d("DeepQuote2",data);
-                    }
-
-                    Message message = new Message();
-                    message.what = UPDATE_TEXT;
-                    message.obj = data;
-                    handler.sendMessage(message);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
+//    private void getDeepQuote2(){
+//        //https://www.nihaowua.com/home.html
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Document document = Jsoup.connect("https://www.nihaowua.com/home.html").get();
+//                    Elements element = document.select("div.post97");
+//                    String data = null;
+//                    for (int i=0;i<element.size();i++){
+//                        data = element.get(i).select("font").text();
+//                        Log.d("DeepQuote2",data);
+//                    }
+//
+//                    Message message = new Message();
+//                    message.what = UPDATE_TEXT;
+//                    message.obj = data;
+//                    handler.sendMessage(message);
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
+//
+//    }
+    private void getDeepQuote2(Callback callback){
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url("https://v1.alapi.cn/api/soul").build();
+        client.newCall(request).enqueue(callback);
     }
 
     private void getDeepQuote3(Callback callback){
