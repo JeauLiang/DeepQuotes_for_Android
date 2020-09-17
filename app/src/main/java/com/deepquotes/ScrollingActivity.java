@@ -130,10 +130,23 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("刷新","u click updata");
 
-                if (sharedPreferences.getBoolean("isEnableHitokoto",false)) {
-                    getDeepQuotes(new Random().nextInt(3),"?c=j");
-                }else
-                    getDeepQuotes(new Random().nextInt(4),"?c=j&c=l");
+                if (sharedPreferences.getBoolean("isEnableHitokoto",false)) {   //启用一言
+                    if (sharedPreferences.getBoolean("随机",false))             //随机一言
+                        getDeepQuotes(new Random().nextInt(4), "");
+                    else {
+                        StringBuffer stringBuffer = new StringBuffer("?");
+                        if(sharedPreferences.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
+                        if(sharedPreferences.getBoolean("游戏",false)) stringBuffer.append("&c=c");
+                        if(sharedPreferences.getBoolean("文学",false)) stringBuffer.append("&c=d");
+                        if(sharedPreferences.getBoolean("影视",false)) stringBuffer.append("&c=h");
+                        if(sharedPreferences.getBoolean("诗词",false)) stringBuffer.append("&c=i");
+                        if(sharedPreferences.getBoolean("网易云",false)) stringBuffer.append("&c=j");
+                        Log.d("TAG","stringBuffer "+stringBuffer);
+                        getDeepQuotes(new Random().nextInt(4),stringBuffer.toString());
+                    }
+                }else {     //关闭一言
+                    getDeepQuotes(new Random().nextInt(3),"");
+                }
 
 //                remoteViews.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
 //                remoteViews.setTextColor(R.id.quotes_textview,sharedPreferences.getInt("fontColor",Color.WHITE));
@@ -449,6 +462,7 @@ public class ScrollingActivity extends AppCompatActivity {
 //        radioGroup1.setOnCheckedChangeListener(listener);
 //        radioGroup2.setOnCheckedChangeListener(listener);
 
+
         final CheckBox randomCheckbox = layoutView.findViewById(R.id.random_checkbox);
         final CheckBox abCheckbox = layoutView.findViewById(R.id.animation_checkbox);
         final CheckBox cCheckbox = layoutView.findViewById(R.id.game_checkbox);
@@ -457,6 +471,20 @@ public class ScrollingActivity extends AppCompatActivity {
         final CheckBox iCheckbox = layoutView.findViewById(R.id.poetry_checkbox);
         final CheckBox jCheckbox = layoutView.findViewById(R.id.neteasemusic_checkbox);
 
+        List<CheckBox> checkBoxGroup = new ArrayList<CheckBox>();
+        checkBoxGroup.add(randomCheckbox);
+        checkBoxGroup.add(abCheckbox);
+        checkBoxGroup.add(cCheckbox);
+        checkBoxGroup.add(dCheckbox);
+        checkBoxGroup.add(hCheckbox);
+        checkBoxGroup.add(iCheckbox);
+        checkBoxGroup.add(jCheckbox);
+
+        for (CheckBox i:checkBoxGroup){
+            i.setChecked (sharedPreferences.getBoolean(i.getText().toString(),false));
+        }
+
+
 
         CompoundButton.OnCheckedChangeListener listener = new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -464,21 +492,21 @@ public class ScrollingActivity extends AppCompatActivity {
 //                sharedPreferencesEditor.putBoolean(compoundButton)
 //                Log.i("11111111111111111", compoundButton.id);
                 if (compoundButton.isChecked()) {
-                    switch (compoundButton.getId()) {
-                        case R.id.random_checkbox:
-                            abCheckbox.setChecked(false);
-                            cCheckbox.setChecked(false);
-                            dCheckbox.setChecked(false);
-                            hCheckbox.setChecked(false);
-                            iCheckbox.setChecked(false);
-                            jCheckbox.setChecked(false);
-                            break;
-                        default:
-                            randomCheckbox.setChecked(false);
-                            break;
+                    if (compoundButton.getText().equals("随机")) {
+                        Log.d("TAG", "onCheckedChanged: " + compoundButton.getText());
+                        abCheckbox.setChecked(false);
+                        cCheckbox.setChecked(false);
+                        dCheckbox.setChecked(false);
+                        hCheckbox.setChecked(false);
+                        iCheckbox.setChecked(false);
+                        jCheckbox.setChecked(false);
+                    }
+                    else{
+                        randomCheckbox.setChecked(false);
+                        Log.d("TAG", "onCheckedChanged: "+compoundButton.getText());
                     }
                  }
-                sharedPreferencesEditor.putBoolean(String.valueOf(compoundButton.getId()),isCheck);
+                sharedPreferencesEditor.putBoolean(compoundButton.getText().toString(),isCheck);
             }
         };
 
