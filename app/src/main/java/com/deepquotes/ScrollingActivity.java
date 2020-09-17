@@ -634,13 +634,20 @@ public class ScrollingActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String responseStr = response.body().string();
-                        Log.d("DeepQuote3",responseStr);
+                        try {
+                            String responseStr = response.body().string();
+                            JSONObject responseJSON = new JSONObject(responseStr);
+                            responseStr = responseJSON.getString("txt");
+                            
+                            Log.d("DeepQuote3",responseStr);
 
-                        Message message = new Message();
-                        message.what = UPDATE_TEXT;
-                        message.obj = responseStr;
-                        handler.sendMessage(message);
+                            Message message = new Message();
+                            message.what = UPDATE_TEXT;
+                            message.obj = responseStr;
+                            handler.sendMessage(message);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
                 break;
@@ -707,7 +714,7 @@ public class ScrollingActivity extends AppCompatActivity {
             public void run() {
                 try {
                     Document document = Jsoup.connect("https://www.nihaowua.com/home.html").get();
-                    Elements element = document.select("div.post55");
+                    Elements element = document.select("div.post97");
                     String data = null;
                     for (int i=0;i<element.size();i++){
                         data = element.get(i).select("font").text();
@@ -729,8 +736,11 @@ public class ScrollingActivity extends AppCompatActivity {
 
     private void getDeepQuote3(Callback callback){
         //https://www.apicp.cn/API/yan/api.php
+        //↑↑↑↑↑↑↑2020.9.17已失效
+
+        //新接口：https://data.zhai78.com/openOneBad.php
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("https://www.apicp.cn/API/yan/api.php").build();
+        Request request = new Request.Builder().url("https://data.zhai78.com/openOneBad.php").build();
         client.newCall(request).enqueue(callback);
     }
 
