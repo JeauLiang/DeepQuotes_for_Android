@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -48,7 +49,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -81,6 +84,8 @@ public class ScrollingActivity extends AppCompatActivity {
     private BroadcastReceiver myBroadcast;
     private IntentFilter intentFilter;
 
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -92,10 +97,10 @@ public class ScrollingActivity extends AppCompatActivity {
         historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
         historyQuotesSPEditor = historyQuotesSP.edit();
 
-        intentFilter = new IntentFilter();
-        intentFilter.addAction("com.deepquotes.broadcast.updateTextView");
-        myBroadcast = new myBroadcast();
-        registerReceiver(myBroadcast,intentFilter);
+//        intentFilter = new IntentFilter();
+//        intentFilter.addAction("com.deepquotes.broadcast.updateTextView");
+//        myBroadcast = new myBroadcast();
+//        registerReceiver(myBroadcast,intentFilter);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
@@ -111,13 +116,15 @@ public class ScrollingActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        TextView widgetTextView = findViewById(R.id.quotes_textview);
+//        TextView widgetTextView = findViewById(R.id.quotes_textview);
 
         remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
         appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
+
+
 //        int[] id = appWidgetManager.getAppWidgetIds(componentName);
-//        Log.d("appwidget信息",widgetTextView.getText().toString());
+//        Log.d("appwidget信息",appWidgetManager.getAppWidgetInfo(id[0]).toString());
 
         handler = new Handler(){
             @Override
@@ -127,6 +134,14 @@ public class ScrollingActivity extends AppCompatActivity {
                     case UPDATE_TEXT:
                         if (msg.obj != null) {
                             String textMessage = msg.obj.toString();
+
+                            int currentQuote = historyQuotesSP.getInt("currentQuote",0);
+                            if (currentQuote > 100) currentQuote = 0;
+                            historyQuotesSPEditor.putString(String.valueOf(currentQuote),textMessage);
+                            int nextQuote = currentQuote + 1;
+                            historyQuotesSPEditor.putInt("currentQuote",nextQuote);
+                            historyQuotesSPEditor.apply();
+
                             headlineTextView.setText(textMessage);
 
                             remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
@@ -172,6 +187,8 @@ public class ScrollingActivity extends AppCompatActivity {
             }
         });
 
+//        Log.d("历史记录", historyQuotesSP.getString(sdf.toPattern(),"null"));
+
 
 
 
@@ -183,6 +200,9 @@ public class ScrollingActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+
+
 
 
 //        refreshTimeTextView.setOnClickListener(new View.OnClickListener() {
@@ -232,7 +252,7 @@ public class ScrollingActivity extends AppCompatActivity {
         });
 
 
-        List<String> myList = new ArrayList<>();
+        List<String> myList = new ArrayList<>(100);
         myList.add("123");
         myList.add("456");
         myList.add("789");
@@ -294,9 +314,9 @@ public class ScrollingActivity extends AppCompatActivity {
 
         final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
         refreshTimeSeekBar.setMax(25);
-        refreshTimeSeekBar.setProgress(appConfigSP.getInt("字体大小:",0));
+        refreshTimeSeekBar.setProgress(appConfigSP.getInt("字体大小:",10));
         final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
-        textView.setText("字体大小:" + appConfigSP.getInt("字体大小:",0));
+        textView.setText("字体大小:" + appConfigSP.getInt("字体大小:",10));
 //        final int[] stepTime = new int[1];
 
         refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -805,17 +825,19 @@ public class ScrollingActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(myBroadcast);
+//        unregisterReceiver(myBroadcast);
     }
 
 
-    class myBroadcast extends BroadcastReceiver{
+    public static class myBroadcast extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("com.deepquotes.broadcast.updateTextView"))
-                headlineTextView.setText(intent.getStringExtra("quote"));
-            Log.d("广播",intent.getAction());
+//            if (intent.getAction().equals("com.deepquotes.broadcast.updateTextView")) {
+//                headlineTextView.setText(intent.getStringExtra("quote"));
+                Log.d("广播", intent.getAction());
+                Toast.makeText(context, "已更新", Toast.LENGTH_SHORT).show();
+//            }
         }
     }
 }

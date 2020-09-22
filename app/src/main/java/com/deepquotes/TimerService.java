@@ -107,10 +107,20 @@ public class TimerService extends Service {
                         String textMessage = msg.obj.toString();
 
 //                        headlineTextView.setText(textMessage);
-                        historyQuotesSPEditor.putString(sdf.format(new Date()),textMessage);
+                        int currentQuote = historyQuotesSP.getInt("currentQuote",0);
+                        if (currentQuote > 99) currentQuote=0;
+
+                        historyQuotesSPEditor.putString(String.valueOf(currentQuote),textMessage);
+                        Log.d("currentQuote",String.valueOf(currentQuote));
+                        int nextQuote = currentQuote+1;
+                        historyQuotesSPEditor.putInt("currentQuote",nextQuote);
                         historyQuotesSPEditor.apply();
+                        Log.d("nextQuote",String.valueOf(nextQuote));
+
+
                         Intent updatetext = new Intent("com.deepquotes.broadcast.updateTextView");
                         updatetext.putExtra("quote",textMessage);
+                        Log.d("广播","already send broadcast");
                         sendBroadcast(updatetext);
 
                         RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
@@ -120,6 +130,8 @@ public class TimerService extends Service {
                         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
                         ComponentName componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
                         appWidgetManager.updateAppWidget(componentName, remoteViews);
+
+
                     }
                     break;
                 default:break;
