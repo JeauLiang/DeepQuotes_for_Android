@@ -96,10 +96,16 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
         alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),UPDATE_DURATION,pendingIntent);
 
         Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
-        RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
-        views.setTextColor(R.id.quotes_textview,Color.WHITE);
+
+        final int N = appWidgetIds.length;
+        for (int i=0; i<N; i++){
+            int appWidgetId = appWidgetIds[i];
+            RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
+            views.setTextColor(R.id.quotes_textview,Color.WHITE);
+            appWidgetManager.updateAppWidget(appWidgetId,views);
+        }
+
 //        views.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
-        appWidgetManager.updateAppWidget(appWidgetIds,views);
 //        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.quotes_layout);
 ////        views.setTextViewText(R.id.quotes_textview, "66666");
 ////        // Instruct the widget manager to update the widget

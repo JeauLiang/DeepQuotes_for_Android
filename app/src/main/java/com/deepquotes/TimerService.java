@@ -4,7 +4,6 @@ import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
@@ -12,6 +11,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -27,7 +27,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -40,13 +39,15 @@ import static com.deepquotes.Quotes.UPDATE_TEXT;
 
 public class TimerService extends Service {
 
-    private SharedPreferences sharedPreferences;
+    private SharedPreferences historyQuotesSP;
+    private SharedPreferences.Editor historyQuotesSPEditor;
 
     private Timer timer;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private int refreshTime;
+    private TextView headlineTextView;
 
 
 
@@ -60,8 +61,8 @@ public class TimerService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        sharedPreferences = getSharedPreferences("data",MODE_PRIVATE);
-
+        historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
+        historyQuotesSPEditor = historyQuotesSP.edit();
 //        timer = new Timer();
 //        timer.schedule(new TimerTask() {
 //            @Override
@@ -73,19 +74,19 @@ public class TimerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("6666", String.valueOf(sharedPreferences.getInt("当前刷新间隔(分钟):", 10)));
+        Log.d("6666", String.valueOf(historyQuotesSP.getInt("当前刷新间隔(分钟):", 10)));
 
-        if (sharedPreferences.getBoolean("isEnableHitokoto",false)) {   //启用一言
-            if (sharedPreferences.getBoolean("随机",false))             //随机一言
+        if (historyQuotesSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
+            if (historyQuotesSP.getBoolean("随机",false))             //随机一言
                 getDeepQuotes(new Random().nextInt(4), "");
             else {
                 StringBuffer stringBuffer = new StringBuffer("?");
-                if(sharedPreferences.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
-                if(sharedPreferences.getBoolean("游戏",false)) stringBuffer.append("&c=c");
-                if(sharedPreferences.getBoolean("文学",false)) stringBuffer.append("&c=d");
-                if(sharedPreferences.getBoolean("影视",false)) stringBuffer.append("&c=h");
-                if(sharedPreferences.getBoolean("诗词",false)) stringBuffer.append("&c=i");
-                if(sharedPreferences.getBoolean("网易云",false)) stringBuffer.append("&c=j");
+                if(historyQuotesSP.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
+                if(historyQuotesSP.getBoolean("游戏",false)) stringBuffer.append("&c=c");
+                if(historyQuotesSP.getBoolean("文学",false)) stringBuffer.append("&c=d");
+                if(historyQuotesSP.getBoolean("影视",false)) stringBuffer.append("&c=h");
+                if(historyQuotesSP.getBoolean("诗词",false)) stringBuffer.append("&c=i");
+                if(historyQuotesSP.getBoolean("网易云",false)) stringBuffer.append("&c=j");
                 Log.d("TAG","stringBuffer "+stringBuffer);
                 getDeepQuotes(new Random().nextInt(4),stringBuffer.toString());
             }
@@ -104,12 +105,18 @@ public class TimerService extends Service {
                 case UPDATE_TEXT:
                     if (msg.obj != null) {
                         String textMessage = msg.obj.toString();
+
 //                        headlineTextView.setText(textMessage);
+                        historyQuotesSPEditor.putString(sdf.format(new Date()),textMessage);
+                        historyQuotesSPEditor.apply();
+                        Intent updatetext = new Intent("com.deepquotes.broadcast.updateTextView");
+                        updatetext.putExtra("quote",textMessage);
+                        sendBroadcast(updatetext);
 
                         RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
                         remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
-                        remoteViews.setTextColor(R.id.quotes_textview, sharedPreferences.getInt("fontColor", Color.WHITE));
-                        remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, sharedPreferences.getInt("字体大小:", 10));
+                        remoteViews.setTextColor(R.id.quotes_textview, historyQuotesSP.getInt("fontColor", Color.WHITE));
+                        remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, historyQuotesSP.getInt("字体大小:", 10));
                         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
                         ComponentName componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
                         appWidgetManager.updateAppWidget(componentName, remoteViews);
@@ -245,7 +252,10 @@ public class TimerService extends Service {
                     Log.d("DeepQuote1", data);
                 } catch (IOException e) {
                     e.printStackTrace();
+                }catch (NullPointerException e){
+                    e.printStackTrace();
                 }
+
             }
         }).start();
     }

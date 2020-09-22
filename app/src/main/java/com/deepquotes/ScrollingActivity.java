@@ -1,12 +1,14 @@
 package com.deepquotes;
 
 import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.fonts.Font;
 import android.os.Bundle;
 
 import com.dingmouren.colorpicker.ColorPickerDialog;
@@ -61,8 +63,11 @@ import static com.deepquotes.Quotes.UPDATE_TEXT;
 
 public class ScrollingActivity extends AppCompatActivity {
 
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor sharedPreferencesEditor;
+    private SharedPreferences appConfigSP;
+    private SharedPreferences.Editor appConfigSPEditor;
+    private SharedPreferences historyQuotesSP;
+    private SharedPreferences.Editor historyQuotesSPEditor;
+
     private DrawerLayout mDrawerLayout;
     private TextView headlineTextView;
 
@@ -73,7 +78,8 @@ public class ScrollingActivity extends AppCompatActivity {
     private ComponentName componentName;
 
     private Handler handler;
-
+    private BroadcastReceiver myBroadcast;
+    private IntentFilter intentFilter;
 
 
     @Override
@@ -81,8 +87,15 @@ public class ScrollingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
 
-        sharedPreferences = getSharedPreferences("data",MODE_PRIVATE);
-        sharedPreferencesEditor = sharedPreferences.edit();
+        appConfigSP = getSharedPreferences("appConfig",MODE_PRIVATE);
+        appConfigSPEditor = appConfigSP.edit();
+        historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
+        historyQuotesSPEditor = historyQuotesSP.edit();
+
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("com.deepquotes.broadcast.updateTextView");
+        myBroadcast = new myBroadcast();
+        registerReceiver(myBroadcast,intentFilter);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
@@ -92,15 +105,19 @@ public class ScrollingActivity extends AppCompatActivity {
         final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto);
         final TextView hitokotoType = findViewById(R.id.hitokoto_type);
         headlineTextView = findViewById(R.id.headline_text_view);
-        headlineTextView.setTextColor(sharedPreferences.getInt("fontColor",Color.WHITE));
+        headlineTextView.setTextColor(appConfigSP.getInt("fontColor",Color.WHITE));
         TextView updateNowTextView = findViewById(R.id.update_now);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        TextView widgetTextView = findViewById(R.id.quotes_textview);
+
         remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
         appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
+//        int[] id = appWidgetManager.getAppWidgetIds(componentName);
+//        Log.d("appwidget信息",widgetTextView.getText().toString());
 
         handler = new Handler(){
             @Override
@@ -113,8 +130,8 @@ public class ScrollingActivity extends AppCompatActivity {
                             headlineTextView.setText(textMessage);
 
                             remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
-                            remoteViews.setTextColor(R.id.quotes_textview, sharedPreferences.getInt("fontColor", Color.WHITE));
-                            remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, sharedPreferences.getInt("字体大小:", 10));
+                            remoteViews.setTextColor(R.id.quotes_textview, appConfigSP.getInt("fontColor", Color.WHITE));
+                            remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 10));
                             appWidgetManager.updateAppWidget(componentName, remoteViews);
                         }
                         break;
@@ -130,17 +147,17 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("刷新","u click updata");
 
-                if (sharedPreferences.getBoolean("isEnableHitokoto",false)) {   //启用一言
-                    if (sharedPreferences.getBoolean("随机",false))             //随机一言
+                if (appConfigSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
+                    if (appConfigSP.getBoolean("随机",false))             //随机一言
                         getDeepQuotes(new Random().nextInt(4), "");
                     else {
                         StringBuffer stringBuffer = new StringBuffer("?");
-                        if(sharedPreferences.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
-                        if(sharedPreferences.getBoolean("游戏",false)) stringBuffer.append("&c=c");
-                        if(sharedPreferences.getBoolean("文学",false)) stringBuffer.append("&c=d");
-                        if(sharedPreferences.getBoolean("影视",false)) stringBuffer.append("&c=h");
-                        if(sharedPreferences.getBoolean("诗词",false)) stringBuffer.append("&c=i");
-                        if(sharedPreferences.getBoolean("网易云",false)) stringBuffer.append("&c=j");
+                        if(appConfigSP.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
+                        if(appConfigSP.getBoolean("游戏",false)) stringBuffer.append("&c=c");
+                        if(appConfigSP.getBoolean("文学",false)) stringBuffer.append("&c=d");
+                        if(appConfigSP.getBoolean("影视",false)) stringBuffer.append("&c=h");
+                        if(appConfigSP.getBoolean("诗词",false)) stringBuffer.append("&c=i");
+                        if(appConfigSP.getBoolean("网易云",false)) stringBuffer.append("&c=j");
                         Log.d("TAG","stringBuffer "+stringBuffer);
                         getDeepQuotes(new Random().nextInt(4),stringBuffer.toString());
                     }
@@ -183,7 +200,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
 
 
-        if (sharedPreferences.getBoolean("isEnableHitokoto",false)){
+        if (appConfigSP.getBoolean("isEnableHitokoto",false)){
 //            hitokotoType.setClickable(false);
 //            hitokotoType.setTextColor(Color.GRAY);
             isEnableHitokoto.setChecked(true);
@@ -202,14 +219,14 @@ public class ScrollingActivity extends AppCompatActivity {
                     if (isEnableHitokoto.isChecked()){
                         hitokotoType.setClickable(true);
                         hitokotoType.setTextColor(Color.BLACK);
-                        sharedPreferencesEditor.putBoolean("isEnableHitokoto",true);
-                        sharedPreferencesEditor.apply();
+                        appConfigSPEditor.putBoolean("isEnableHitokoto",true);
+                        appConfigSPEditor.apply();
                     }
                 }else {
                     hitokotoType.setClickable(false);
                     hitokotoType.setTextColor(Color.GRAY);
-                    sharedPreferencesEditor.putBoolean("isEnableHitokoto",false);
-                    sharedPreferencesEditor.apply();
+                    appConfigSPEditor.putBoolean("isEnableHitokoto",false);
+                    appConfigSPEditor.apply();
                 }
             }
         });
@@ -227,7 +244,7 @@ public class ScrollingActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         mColorPickerDialog = new ColorPickerDialog(this,
-                sharedPreferences.getInt("fontColor",Color.BLACK),
+                appConfigSP.getInt("fontColor",Color.WHITE),
                 false,
                 new OnColorPickerListener() {
                     @Override
@@ -245,8 +262,8 @@ public class ScrollingActivity extends AppCompatActivity {
                         Log.w("color",String.valueOf(color));
                         headlineTextView.setTextColor(color);
 
-                        sharedPreferencesEditor.putInt("fontColor",color);
-                        sharedPreferencesEditor.apply();
+                        appConfigSPEditor.putInt("fontColor",color);
+                        appConfigSPEditor.apply();
 
                         remoteViews.setTextColor(R.id.quotes_textview,color);
                         appWidgetManager.updateAppWidget(componentName,remoteViews);
@@ -257,6 +274,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
 
     }
+
 
     public void showHistory(View view){
         mDrawerLayout.openDrawer(Gravity.RIGHT);
@@ -276,9 +294,9 @@ public class ScrollingActivity extends AppCompatActivity {
 
         final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
         refreshTimeSeekBar.setMax(25);
-        refreshTimeSeekBar.setProgress(sharedPreferences.getInt("字体大小:",0));
+        refreshTimeSeekBar.setProgress(appConfigSP.getInt("字体大小:",0));
         final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
-        textView.setText("字体大小:" + sharedPreferences.getInt("字体大小:",0));
+        textView.setText("字体大小:" + appConfigSP.getInt("字体大小:",0));
 //        final int[] stepTime = new int[1];
 
         refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -300,8 +318,8 @@ public class ScrollingActivity extends AppCompatActivity {
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                sharedPreferencesEditor.putInt("字体大小:",refreshTimeSeekBar.getProgress()+1);
-                sharedPreferencesEditor.apply();
+                appConfigSPEditor.putInt("字体大小:",refreshTimeSeekBar.getProgress()+1);
+                appConfigSPEditor.apply();
 
                 remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress()+1);
                 appWidgetManager.updateAppWidget(componentName,remoteViews);
@@ -325,8 +343,8 @@ public class ScrollingActivity extends AppCompatActivity {
         refreshTimeSeekBar.setMax(119);
         final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
 
-        textView.setText("当前刷新间隔(分钟):" + sharedPreferences.getInt("当前刷新间隔(分钟):",10));
-        refreshTimeSeekBar.setProgress(sharedPreferences.getInt("当前刷新间隔(分钟):",10));
+        textView.setText("当前刷新间隔(分钟):" + appConfigSP.getInt("当前刷新间隔(分钟):",10));
+        refreshTimeSeekBar.setProgress(appConfigSP.getInt("当前刷新间隔(分钟):",10));
 //        final int[] stepTime = new int[1];
 
         refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -348,8 +366,8 @@ public class ScrollingActivity extends AppCompatActivity {
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                sharedPreferencesEditor.putInt("当前刷新间隔(分钟):",refreshTimeSeekBar.getProgress()+1);
-                sharedPreferencesEditor.apply();
+                appConfigSPEditor.putInt("当前刷新间隔(分钟):",refreshTimeSeekBar.getProgress()+1);
+                appConfigSPEditor.apply();
 
 //                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress()+1);
 //                appWidgetManager.updateAppWidget(componentName,remoteViews);
@@ -482,7 +500,7 @@ public class ScrollingActivity extends AppCompatActivity {
         checkBoxGroup.add(jCheckbox);
 
         for (CheckBox i:checkBoxGroup){
-            i.setChecked (sharedPreferences.getBoolean(i.getText().toString(),false));
+            i.setChecked (appConfigSP.getBoolean(i.getText().toString(),false));
         }
 
 
@@ -507,7 +525,7 @@ public class ScrollingActivity extends AppCompatActivity {
                         Log.d("TAG", "onCheckedChanged: "+compoundButton.getText());
                     }
                  }
-                sharedPreferencesEditor.putBoolean(compoundButton.getText().toString(),isCheck);
+                appConfigSPEditor.putBoolean(compoundButton.getText().toString(),isCheck);
             }
         };
 
@@ -522,7 +540,7 @@ public class ScrollingActivity extends AppCompatActivity {
         TypeBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                sharedPreferencesEditor.apply();
+                appConfigSPEditor.apply();
             }
         });
         TypeBuilder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -581,7 +599,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
         boolean checkItems[] = new boolean[2];
         for (int i=0;i<checkItems.length;i++)
-            checkItems[i] = sharedPreferences.getBoolean(styles[i],false);
+            checkItems[i] = appConfigSP.getBoolean(styles[i],false);
 
         selectFontStyleBuilder.setMultiChoiceItems(styles, checkItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
@@ -726,6 +744,8 @@ public class ScrollingActivity extends AppCompatActivity {
                     Log.d("DeepQuote1", data);
                 } catch (IOException e) {
                     e.printStackTrace();
+                }catch (NullPointerException e){
+                    e.printStackTrace();
                 }
             }
         }).start();
@@ -785,5 +805,17 @@ public class ScrollingActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(myBroadcast);
+    }
+
+
+    class myBroadcast extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("com.deepquotes.broadcast.updateTextView"))
+                headlineTextView.setText(intent.getStringExtra("quote"));
+            Log.d("广播",intent.getAction());
+        }
     }
 }
