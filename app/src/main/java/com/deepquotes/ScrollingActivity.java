@@ -81,7 +81,7 @@ public class ScrollingActivity extends AppCompatActivity {
     private ComponentName componentName;
 
     private Handler handler;
-    private BroadcastReceiver myBroadcast;
+    private myBroadcast myBroadcast;
     private IntentFilter intentFilter;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -97,10 +97,10 @@ public class ScrollingActivity extends AppCompatActivity {
         historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
         historyQuotesSPEditor = historyQuotesSP.edit();
 
-//        intentFilter = new IntentFilter();
-//        intentFilter.addAction("com.deepquotes.broadcast.updateTextView");
-//        myBroadcast = new myBroadcast();
-//        registerReceiver(myBroadcast,intentFilter);
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("com.deepquotes.broadcast.updateTextView");
+        myBroadcast = new myBroadcast();
+        registerReceiver(myBroadcast,intentFilter);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
@@ -121,6 +121,11 @@ public class ScrollingActivity extends AppCompatActivity {
         remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
         appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
+
+        updateHistoryQuotes();
+        int defaultNum = historyQuotesSP.getInt("currentQuote",0);
+
+        headlineTextView.setText(historyQuotesSP.getString(String.valueOf(defaultNum-1),"欲买桂花同载酒，终不似，少年游"));
 
 
 //        int[] id = appWidgetManager.getAppWidgetIds(componentName);
@@ -252,17 +257,6 @@ public class ScrollingActivity extends AppCompatActivity {
         });
 
 
-        List<String> myList = new ArrayList<>(100);
-        myList.add("123");
-        myList.add("456");
-        myList.add("789");
-        myList.add("000");
-        final RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        QuotesAdapter adapter = new QuotesAdapter(myList);
-        recyclerView.setAdapter(adapter);
-
         mColorPickerDialog = new ColorPickerDialog(this,
                 appConfigSP.getInt("fontColor",Color.WHITE),
                 false,
@@ -293,6 +287,20 @@ public class ScrollingActivity extends AppCompatActivity {
 
 
 
+    }
+
+    private void updateHistoryQuotes() {
+        List<String> myList = new ArrayList<>(100);
+        for (int inWchichQuote = 0; inWchichQuote < historyQuotesSP.getInt("currentQuote", 0); inWchichQuote++)
+            myList.add(historyQuotesSP.getString(String.valueOf(inWchichQuote), "null"));
+//        myList.add("456");
+//        myList.add("789");
+//        myList.add("000");
+        final RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        QuotesAdapter adapter = new QuotesAdapter(myList);
+        recyclerView.setAdapter(adapter);
     }
 
 
@@ -825,19 +833,21 @@ public class ScrollingActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        unregisterReceiver(myBroadcast);
+        unregisterReceiver(myBroadcast);
     }
 
 
-    public static class myBroadcast extends BroadcastReceiver{
+    public class myBroadcast extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
-//            if (intent.getAction().equals("com.deepquotes.broadcast.updateTextView")) {
-//                headlineTextView.setText(intent.getStringExtra("quote"));
+            if (intent.getAction().equals("com.deepquotes.broadcast.updateTextView")) {
+                headlineTextView.setText(intent.getStringExtra("quote"));
+
+                updateHistoryQuotes();
                 Log.d("广播", intent.getAction());
                 Toast.makeText(context, "已更新", Toast.LENGTH_SHORT).show();
-//            }
+            }
         }
     }
 }

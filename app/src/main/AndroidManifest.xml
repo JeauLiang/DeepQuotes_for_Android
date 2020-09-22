@@ -28,13 +28,13 @@
                 android:resource="@xml/quotes_widget_provider_info" />
         </receiver>
         
-        <receiver android:name="com.deepquotes.ScrollingActivity$myBroadcast"
-            android:enabled="true">
-            <intent-filter>
-                <action android:name="com.deepquotes.broadcast.updateTextView"/>
-            </intent-filter>
+<!--        <receiver android:name="com.deepquotes.ScrollingActivity$myBroadcast"-->
+<!--            android:enabled="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.deepquotes.broadcast.updateTextView"/>-->
+<!--            </intent-filter>-->
 
-        </receiver>
+<!--        </receiver>-->
 
 
 
