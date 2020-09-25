@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ScrollingActivity"
+    android:background="@color/background_color"
     tools:showIn="@layout/activity_scrolling">
 
     <LinearLayout
@@ -25,6 +26,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/background_color"
                 android:orientation="vertical">
                 <TextView
                     android:layout_width="wrap_content"
@@ -41,7 +43,7 @@
                     android:padding="15dp"
                     android:text="立即刷新"
                     android:fontFamily="serif"
-                    android:textColor="#000"
+                    android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"/>
@@ -52,7 +54,7 @@
                     android:padding="15dp"
                     android:text="自动刷新时间"
                     android:fontFamily="serif"
-                    android:textColor="#000"
+                    android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
@@ -70,7 +72,7 @@
                         android:text="是否启用一言"
                         android:fontFamily="serif"
                         android:background="?android:attr/selectableItemBackground"
-                        android:textColor="#000"
+                        android:textColor="@color/color_txt"
                         android:textSize="15sp"
                         android:clickable="true"/>
                     <Switch
@@ -88,7 +90,7 @@
                     android:padding="15dp"
                     android:text="一言句子类型"
                     android:fontFamily="serif"
-                    android:textColor="#000"
+                    android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
@@ -109,6 +111,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/background_color"
                 android:orientation="vertical">
                 <TextView
                     android:layout_width="wrap_content"
@@ -125,7 +128,7 @@
                     android:padding="15dp"
                     android:text="字体样式"
                     android:fontFamily="serif"
-                    android:textColor="#000"
+                    android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     android:onClick="selectFontStyle"
                     android:background="?android:attr/selectableItemBackground"
@@ -137,7 +140,7 @@
                     android:padding="15dp"
                     android:text="字体颜色"
                     android:fontFamily="serif"
-                    android:textColor="#000"
+                    android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
@@ -151,7 +154,7 @@
                     android:fontFamily="serif"
                     android:textSize="15sp"
                     android:padding="15dp"
-                    android:textColor="#000"
+                    android:textColor="@color/color_txt"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:onClick="selectFontSize"/>
@@ -172,6 +175,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/background_color"
                 android:orientation="vertical">
                 <TextView
                     android:layout_width="wrap_content"
@@ -188,7 +192,7 @@
                     android:padding="15dp"
                     android:text="历史记录"
                     android:fontFamily="serif"
-                    android:textColor="#000"
+                    android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
@@ -200,7 +204,7 @@
                     android:padding="15dp"
                     android:text="问题反馈"
                     android:fontFamily="serif"
-                    android:textColor="#000"
+                    android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
@@ -211,7 +215,7 @@
                     android:padding="15dp"
                     android:text="版本：子鼠v1.0"
                     android:fontFamily="serif"
-                    android:textColor="#000"
+                    android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"/>

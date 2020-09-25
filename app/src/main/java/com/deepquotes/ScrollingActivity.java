@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -19,10 +20,12 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 
 import android.os.Handler;
 import android.os.Message;
@@ -127,6 +130,9 @@ public class ScrollingActivity extends AppCompatActivity {
 
         headlineTextView.setText(historyQuotesSP.getString(String.valueOf(defaultNum-1),"欲买桂花同载酒，终不似，少年游"));
 
+
+
+        dayOrNightMode();
 
 //        int[] id = appWidgetManager.getAppWidgetIds(componentName);
 //        Log.d("appwidget信息",appWidgetManager.getAppWidgetInfo(id[0]).toString());
@@ -834,6 +840,21 @@ public class ScrollingActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(myBroadcast);
+    }
+
+    private void dayOrNightMode(){
+        int currentNightMode = getApplicationContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (currentNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                // Night mode is not active, we're using the light theme
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                // Night mode is active, we're using dark theme
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            default:break;
+        }
     }
 
 

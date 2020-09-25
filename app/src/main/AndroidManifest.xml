@@ -41,7 +41,8 @@
         <activity
             android:name=".ScrollingActivity"
             android:label="@string/app_name"
-            android:theme="@style/deepQuotesTheme">
+            android:theme="@style/deepQuotesTheme"
+            android:configChanges="uiMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
