@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import com.dingmouren.colorpicker.ColorPickerDialog;
@@ -31,11 +32,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RemoteViews;
@@ -293,6 +296,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
 
 
+
     }
 
     private void updateHistoryQuotes() {
@@ -315,9 +319,9 @@ public class ScrollingActivity extends AppCompatActivity {
     }
 
     public void selectFontColor(View view){
-
        mColorPickerDialog.show();
-
+       Window window = mColorPickerDialog.getDialog().getWindow();
+       window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
 
     }
 
@@ -325,7 +329,7 @@ public class ScrollingActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
         builder.setView(layoutView);
-
+        layoutView.setBackgroundColor(getResources().getColor(R.color.background_color));
         final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
         refreshTimeSeekBar.setMax(25);
         refreshTimeSeekBar.setProgress(appConfigSP.getInt("字体大小:",10));
@@ -365,11 +369,16 @@ public class ScrollingActivity extends AppCompatActivity {
 
             }
         });
-        builder.show();
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+        Window window = alertDialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
     }
 
     public void selectRefreshTime(View view){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
         builder.setView(layoutView);
 
@@ -402,7 +411,6 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 appConfigSPEditor.putInt("当前刷新间隔(分钟):",refreshTimeSeekBar.getProgress()+1);
                 appConfigSPEditor.apply();
-
 //                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress()+1);
 //                appWidgetManager.updateAppWidget(componentName,remoteViews);
             }
@@ -413,7 +421,14 @@ public class ScrollingActivity extends AppCompatActivity {
 
             }
         });
-        builder.show();
+
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+        Window window = alertDialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
+
     }
 
 //
@@ -584,8 +599,11 @@ public class ScrollingActivity extends AppCompatActivity {
             }
         });
 
-        TypeBuilder.show();
-        //v.setBackgroundColor(Color.RED);
+        AlertDialog alertDialog = TypeBuilder.create();
+        alertDialog.show();
+
+        Window window = alertDialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
     }
 
  /**
@@ -655,8 +673,13 @@ public class ScrollingActivity extends AppCompatActivity {
 
             }
         });
-        selectFontStyleBuilder.show();
+//        selectFontStyleBuilder.show();
 
+        AlertDialog alertDialog = selectFontStyleBuilder.create();
+        alertDialog.show();
+
+        Window window = alertDialog.getWindow();
+        window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
 
     }
 

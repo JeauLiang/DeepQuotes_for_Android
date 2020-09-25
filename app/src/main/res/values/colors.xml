@@ -6,6 +6,6 @@
     <!--<color name="colorAccent">#ea6da7</color>-->
 
     <!--文字颜色-->
-    <color name="color_txt">#9C9C9C</color>
+    <color name="color_txt">#000</color>
     <color name="background_color">#fff</color>
 </resources>
