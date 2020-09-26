@@ -121,18 +121,18 @@
                     android:fontFamily="serif"
                     android:textColor="@color/colorAccent"
                     android:textSize="15sp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="5"
-                    android:padding="15dp"
-                    android:text="字体样式"
-                    android:fontFamily="serif"
-                    android:textColor="@color/color_txt"
-                    android:textSize="15sp"
-                    android:onClick="selectFontStyle"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"/>
+<!--                <TextView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_weight="5"-->
+<!--                    android:padding="15dp"-->
+<!--                    android:text="字体样式"-->
+<!--                    android:fontFamily="serif"-->
+<!--                    android:textColor="@color/color_txt"-->
+<!--                    android:textSize="15sp"-->
+<!--                    android:onClick="selectFontStyle"-->
+<!--                    android:background="?android:attr/selectableItemBackground"-->
+<!--                    android:clickable="true"/>-->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

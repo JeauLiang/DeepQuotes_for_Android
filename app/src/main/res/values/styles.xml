@@ -19,5 +19,11 @@
 
     <style name="deepQuotesTheme" parent="AppTheme"></style>
 
+    <style name="widgetFontStyle">
+        <item name="android:textStyle"></item>
+    </style>
+
+
+
 
 </resources>

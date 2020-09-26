@@ -2,6 +2,8 @@ package com.deepquotes;
 
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,15 +12,20 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.dingmouren.colorpicker.ColorPickerDialog;
 import com.dingmouren.colorpicker.OnColorPickerListener;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -60,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.zip.Inflater;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -90,6 +98,8 @@ public class ScrollingActivity extends AppCompatActivity {
     private myBroadcast myBroadcast;
     private IntentFilter intentFilter;
 
+    private ClipboardManager clipboardManager;
+
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
@@ -117,10 +127,17 @@ public class ScrollingActivity extends AppCompatActivity {
         final TextView hitokotoType = findViewById(R.id.hitokoto_type);
         headlineTextView = findViewById(R.id.headline_text_view);
         headlineTextView.setTextColor(appConfigSP.getInt("fontColor",Color.WHITE));
+        headlineTextView.setTextSize(appConfigSP.getInt("字体大小:",20));
         TextView updateNowTextView = findViewById(R.id.update_now);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        AppBarLayout appBarLayout = findViewById(R.id.app_bar);
+
+        clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+
+
 
 //        TextView widgetTextView = findViewById(R.id.quotes_textview);
 
@@ -157,10 +174,11 @@ public class ScrollingActivity extends AppCompatActivity {
                             historyQuotesSPEditor.apply();
 
                             headlineTextView.setText(textMessage);
+                            headlineTextView.setTextSize(appConfigSP.getInt("字体大小:",20));
 
                             remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
                             remoteViews.setTextColor(R.id.quotes_textview, appConfigSP.getInt("fontColor", Color.WHITE));
-                            remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 10));
+                            remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));
                             appWidgetManager.updateAppWidget(componentName, remoteViews);
                         }
                         break;
@@ -210,8 +228,14 @@ public class ScrollingActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                String deepQuote = headlineTextView.getText().toString();
+                // 创建普通字符型ClipData
+                ClipData mClipData = ClipData.newPlainText("deepQuote", deepQuote);
+                // 将ClipData内容放到系统剪贴板里。
+                clipboardManager.setPrimaryClip(mClipData);
+                Toast.makeText(ScrollingActivity.this, "复制成功!", Toast.LENGTH_SHORT).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
         });
 
@@ -325,13 +349,15 @@ public class ScrollingActivity extends AppCompatActivity {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void selectFontSize(View view){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
         builder.setView(layoutView);
         layoutView.setBackgroundColor(getResources().getColor(R.color.background_color));
         final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
-        refreshTimeSeekBar.setMax(25);
+        refreshTimeSeekBar.setMax(30);
+        refreshTimeSeekBar.setMin(10);
         refreshTimeSeekBar.setProgress(appConfigSP.getInt("字体大小:",10));
         final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
         textView.setText("字体大小:" + appConfigSP.getInt("字体大小:",10));
@@ -340,7 +366,8 @@ public class ScrollingActivity extends AppCompatActivity {
         refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                textView.setText("字体大小:"+(i+1));
+                textView.setText("字体大小:"+i);
+                Log.d("字体大小", ": "+i);
             }
 
             @Override
@@ -356,10 +383,11 @@ public class ScrollingActivity extends AppCompatActivity {
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                appConfigSPEditor.putInt("字体大小:",refreshTimeSeekBar.getProgress()+1);
+                appConfigSPEditor.putInt("字体大小:",refreshTimeSeekBar.getProgress());
                 appConfigSPEditor.apply();
 
-                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress()+1);
+                headlineTextView.setTextSize(refreshTimeSeekBar.getProgress());
+                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress());
                 appWidgetManager.updateAppWidget(componentName,remoteViews);
             }
         });
@@ -644,44 +672,45 @@ public class ScrollingActivity extends AppCompatActivity {
     }
  **/
 
-    public void selectFontStyle(View v){
-        final String[] styles = {"加粗","斜体"};
-        final AlertDialog.Builder selectFontStyleBuilder = new AlertDialog.Builder(this);
-        final ArrayList selectedStyles = new ArrayList();
-
-        boolean checkItems[] = new boolean[2];
-        for (int i=0;i<checkItems.length;i++)
-            checkItems[i] = appConfigSP.getBoolean(styles[i],false);
-
-        selectFontStyleBuilder.setMultiChoiceItems(styles, checkItems, new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i, boolean isCheck) {
-                if (isCheck)
-                    selectedStyles.add(styles[i]);
-                else selectedStyles.remove(styles[i]);
-            }
-        });
-        selectFontStyleBuilder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        selectFontStyleBuilder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-//        selectFontStyleBuilder.show();
-
-        AlertDialog alertDialog = selectFontStyleBuilder.create();
-        alertDialog.show();
-
-        Window window = alertDialog.getWindow();
-        window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
-
-    }
+//    public void selectFontStyle(View v){
+//        final String[] styles = {"加粗","斜体"};
+//        final AlertDialog.Builder selectFontStyleBuilder = new AlertDialog.Builder(this);
+//        final ArrayList selectedStyles = new ArrayList();
+//
+//        boolean checkItems[] = new boolean[2];
+//        for (int i=0;i<checkItems.length;i++)
+//            checkItems[i] = appConfigSP.getBoolean(styles[i],false);
+//
+//        selectFontStyleBuilder.setMultiChoiceItems(styles, checkItems, new DialogInterface.OnMultiChoiceClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i, boolean isCheck) {
+//                if (isCheck)
+//                    selectedStyles.add(styles[i]);
+//                else selectedStyles.remove(styles[i]);
+//            }
+//        });
+//        selectFontStyleBuilder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//
+//
+//
+//            }
+//        });
+//        selectFontStyleBuilder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//            }
+//        });
+////        selectFontStyleBuilder.show();
+//
+//        AlertDialog alertDialog = selectFontStyleBuilder.create();
+//        alertDialog.show();
+//
+//        Window window = alertDialog.getWindow();
+//        window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
+//
+//    }
 
     public void feedBack(View view){
         Intent intent = getPackageManager().getLaunchIntentForPackage("com.coolapk.market");

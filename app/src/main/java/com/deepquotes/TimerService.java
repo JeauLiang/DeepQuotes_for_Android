@@ -39,6 +39,7 @@ import static com.deepquotes.Quotes.UPDATE_TEXT;
 
 public class TimerService extends Service {
 
+    private SharedPreferences appConfigSP;
     private SharedPreferences historyQuotesSP;
     private SharedPreferences.Editor historyQuotesSPEditor;
 
@@ -61,6 +62,7 @@ public class TimerService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        appConfigSP = getSharedPreferences("appConfig",MODE_PRIVATE);
         historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
         historyQuotesSPEditor = historyQuotesSP.edit();
 //        timer = new Timer();
@@ -74,19 +76,19 @@ public class TimerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("6666", String.valueOf(historyQuotesSP.getInt("当前刷新间隔(分钟):", 10)));
+        Log.d("6666", String.valueOf(appConfigSP.getInt("当前刷新间隔(分钟):", 10)));
 
-        if (historyQuotesSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
-            if (historyQuotesSP.getBoolean("随机",false))             //随机一言
+        if (appConfigSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
+            if (appConfigSP.getBoolean("随机",false))             //随机一言
                 getDeepQuotes(new Random().nextInt(4), "");
             else {
                 StringBuffer stringBuffer = new StringBuffer("?");
-                if(historyQuotesSP.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
-                if(historyQuotesSP.getBoolean("游戏",false)) stringBuffer.append("&c=c");
-                if(historyQuotesSP.getBoolean("文学",false)) stringBuffer.append("&c=d");
-                if(historyQuotesSP.getBoolean("影视",false)) stringBuffer.append("&c=h");
-                if(historyQuotesSP.getBoolean("诗词",false)) stringBuffer.append("&c=i");
-                if(historyQuotesSP.getBoolean("网易云",false)) stringBuffer.append("&c=j");
+                if(appConfigSP.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
+                if(appConfigSP.getBoolean("游戏",false)) stringBuffer.append("&c=c");
+                if(appConfigSP.getBoolean("文学",false)) stringBuffer.append("&c=d");
+                if(appConfigSP.getBoolean("影视",false)) stringBuffer.append("&c=h");
+                if(appConfigSP.getBoolean("诗词",false)) stringBuffer.append("&c=i");
+                if(appConfigSP.getBoolean("网易云",false)) stringBuffer.append("&c=j");
                 Log.d("TAG","stringBuffer "+stringBuffer);
                 getDeepQuotes(new Random().nextInt(4),stringBuffer.toString());
             }
@@ -125,8 +127,8 @@ public class TimerService extends Service {
 
                         RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
                         remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
-                        remoteViews.setTextColor(R.id.quotes_textview, historyQuotesSP.getInt("fontColor", Color.WHITE));
-                        remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, historyQuotesSP.getInt("字体大小:", 10));
+                        remoteViews.setTextColor(R.id.quotes_textview, appConfigSP.getInt("fontColor", Color.WHITE));
+                        remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));
                         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
                         ComponentName componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
                         appWidgetManager.updateAppWidget(componentName, remoteViews);

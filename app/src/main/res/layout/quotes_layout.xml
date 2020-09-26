@@ -7,9 +7,13 @@
 
     <TextView
         android:id="@+id/quotes_textview"
+        style="@style/widgetFontStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="只是一段示例"/>
+        android:layout_margin="20dp"
+        android:gravity="center"
+        android:fontFamily="serif"
+        android:text="欲买桂花同载酒，终不似，少年游"/>
 
 
 </LinearLayout>
