@@ -133,7 +133,7 @@ public class ScrollingActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        AppBarLayout appBarLayout = findViewById(R.id.app_bar);
+
 
         clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 
@@ -231,7 +231,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
                 String deepQuote = headlineTextView.getText().toString();
                 // 创建普通字符型ClipData
-                ClipData mClipData = ClipData.newPlainText("deepQuote", deepQuote);
+                ClipData mClipData = ClipData.newPlainText("deepQuote", deepQuote+"——来自「相顾无言」");
                 // 将ClipData内容放到系统剪贴板里。
                 clipboardManager.setPrimaryClip(mClipData);
                 Toast.makeText(ScrollingActivity.this, "复制成功!", Toast.LENGTH_SHORT).show();
