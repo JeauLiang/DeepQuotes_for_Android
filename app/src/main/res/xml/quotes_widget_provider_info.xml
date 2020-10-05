@@ -5,6 +5,7 @@
     android:minWidth="40dp"
     android:minHeight="40dp"
     android:initialLayout="@layout/quotes_layout"
+    android:updatePeriodMillis="0"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen">
 

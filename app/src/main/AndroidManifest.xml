@@ -8,41 +8,44 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+
         <service
             android:name=".TimerService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"
+            android:process=":remote" />
+
+        <service
+            android:name=".UpdateService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
 
         <receiver android:name=".QuotesWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="CLOCK_WIDGET_UPDATE"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/quotes_widget_provider_info" />
-        </receiver>
-        
-<!--        <receiver android:name="com.deepquotes.ScrollingActivity$myBroadcast"-->
-<!--            android:enabled="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="com.deepquotes.broadcast.updateTextView"/>-->
-<!--            </intent-filter>-->
-
-<!--        </receiver>-->
-
-
-
+        </receiver> <!-- <receiver android:name="com.deepquotes.ScrollingActivity$myBroadcast" -->
+        <!-- android:enabled="true"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="com.deepquotes.broadcast.updateTextView"/> -->
+        <!-- </intent-filter> -->
+        <!-- </receiver> -->
         <activity
             android:name=".ScrollingActivity"
+            android:configChanges="uiMode"
             android:label="@string/app_name"
-            android:theme="@style/deepQuotesTheme"
-            android:configChanges="uiMode">
+            android:theme="@style/deepQuotesTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

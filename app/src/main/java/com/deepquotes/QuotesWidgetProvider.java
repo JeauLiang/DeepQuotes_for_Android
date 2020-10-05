@@ -2,14 +2,19 @@ package com.deepquotes;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -38,9 +43,8 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public static int mIndex;
     private SharedPreferences sharedPreferences;
 
-    private PendingIntent pendingIntent = null;
 
-    private static final int UPDATE_DURATION = 10 * 1000; // Widget 更新间隔
+    private static final int UPDATE_DURATION = 30 * 1000; // Widget 更新间隔
 
 
 
@@ -49,8 +53,16 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
 //    public void onReceive(Context context, Intent intent) {
 //        super.onReceive(context, intent);
 //        String action = intent.getAction();
-//        if (ACTION_CLICK.equals(action)) {
-//            Toast.makeText(context, "你点击了控件", Toast.LENGTH_SHORT).show();
+////        Log.d("TAG", "onReceive: 定时更新"+action);
+//        if (action.equals("CLOCK_WIDGET_UPDATE")) {
+//            Toast.makeText(context, "定时更新", Toast.LENGTH_SHORT).show();
+//            Log.d("TAG", "onReceive: 定时更新");
+//
+//
+//            Intent i = new Intent(context.getApplicationContext(),TimerService.class);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                context.startForegroundService(i);
+//            }else context.getApplicationContext().startService(i);
 //            //getQuotes(context);
 //            //updateAllWidget();
 //        }
@@ -86,16 +98,24 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent alarmIntent = new Intent(context,TimerService.class);
+//        AlarmManager alarmManager = (AlarmManager) context.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+//
+//        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),UPDATE_DURATION,createPendingIntent(context));
 
-        if (pendingIntent == null){
-            pendingIntent = PendingIntent.getService(context,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-        }
+        Log.d("QuotesWidgetProvider", "onUpdate: "+context);
 
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),UPDATE_DURATION,pendingIntent);
+//        Intent intent = new Intent(context.getApplicationContext(),TimerService.class);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            context.startForegroundService(intent);
+//        }else context.getApplicationContext().startService(intent);
 
-        Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
+        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        ComponentName componentName = new ComponentName(context,UpdateService.class);
+        JobInfo jobInfo = new JobInfo.Builder(12345,componentName)
+                .setPeriodic(15*60*1000)
+                .build();
+        jobScheduler.schedule(jobInfo);
 
         final int N = appWidgetIds.length;
         for (int i=0; i<N; i++){
@@ -120,12 +140,23 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
         Toast.makeText(context,"你删除了控件",Toast.LENGTH_SHORT).show();
     }
 
+    private PendingIntent createPendingIntent(Context context){
+        Intent alarmIntent = new Intent(context.getApplicationContext(),TimerService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(context.getApplicationContext(),0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+        return pendingIntent;
+    }
+
+
     //该窗口小部件第一次添加到桌面时调用该方法
     @Override
     public void onEnabled(Context context) {
         super.onEnabled(context);
 
-//        Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
+
+
+
+
+        Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
 //        Intent startTimerIntent = new Intent(context, TimerService.class);
 ////        startTimerIntent.putExtra("refreshTime",sharedPreferences.getInt("当前刷新间隔(分钟):",10));
 //        context.startService(startTimerIntent);
@@ -136,10 +167,13 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public void onDisabled(Context context) {
         super.onDisabled(context);
         Toast.makeText(context,"你删除了最后一个控件",Toast.LENGTH_SHORT).show();
+
+        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        jobScheduler.cancel(12345);
 //        context.stopService(new Intent(context, TimerService.class));
 
-        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        manager.cancel(pendingIntent);
+//        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//        manager.cancel(createPendingIntent(context));
     }
 
 

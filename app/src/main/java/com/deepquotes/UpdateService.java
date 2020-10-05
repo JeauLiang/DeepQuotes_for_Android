@@ -1,21 +1,17 @@
 package com.deepquotes;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.app.Service;
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
-import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -27,10 +23,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Random;
-import java.util.Timer;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -41,51 +34,29 @@ import okhttp3.Response;
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
 import static com.deepquotes.Quotes.UPDATE_TEXT;
 
-public class TimerService extends Service {
+public class UpdateService extends JobService {
+    
+    private final static String TAG = "JOBSERVICE";
+    private boolean isFinish = false;
 
     private SharedPreferences appConfigSP;
     private SharedPreferences historyQuotesSP;
     private SharedPreferences.Editor historyQuotesSPEditor;
 
-    private Timer timer;
-
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    private int refreshTime;
-    private TextView headlineTextView;
-
-    private static final int UPDATE_DURATION = 30 * 1000; // Widget 更新间隔
-
-
 
 
     @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
     public void onCreate() {
         super.onCreate();
 
         appConfigSP = getSharedPreferences("appConfig",MODE_PRIVATE);
         historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
         historyQuotesSPEditor = historyQuotesSP.edit();
-//        timer = new Timer();
-//        timer.schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                updateViews();
-//            }
-//        }, 0, 1000);
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("6666", String.valueOf(appConfigSP.getInt("当前刷新间隔(分钟):", 10)));
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()+UPDATE_DURATION,createPendingIntent());
+    public boolean onStartJob(JobParameters params) {
+        Log.i(TAG, "onStartJob: ");
 
 
         if (appConfigSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
@@ -105,14 +76,7 @@ public class TimerService extends Service {
         }else {     //关闭一言
             getDeepQuotes(new Random().nextInt(3),"");
         }
-
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    private PendingIntent createPendingIntent(){
-        Intent alarmIntent = new Intent("CLOCK_WIDGET_UPDATE");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-        return pendingIntent;
+        return false;
     }
 
     Handler handler = new Handler(){
@@ -124,7 +88,7 @@ public class TimerService extends Service {
                     if (msg.obj != null) {
                         String textMessage = msg.obj.toString();
 
-//                        headlineTextView.setText(textMessage);
+                        //                        headlineTextView.setText(textMessage);
                         int currentQuote = historyQuotesSP.getInt("currentQuote",0);
                         if (currentQuote > 99) currentQuote=0;
 
@@ -159,19 +123,16 @@ public class TimerService extends Service {
     };
 
 
-
-    private void updateViews() {
-        String time = sdf.format(new Date());
-        RemoteViews rv = new RemoteViews(getPackageName(), R.layout.quotes_layout);
-        rv.setTextViewText(R.id.quotes_textview, "666 ： " + time);
-        AppWidgetManager manager = AppWidgetManager.getInstance(getApplicationContext());
-        ComponentName cn = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
-        manager.updateAppWidget(cn, rv);
+    @Override
+    public boolean onStopJob(JobParameters params) {
+        Log.i(TAG, "onStopJob: ");
+        return false;
     }
 
+    @Override
     public void onDestroy() {
+        Log.i(TAG, "onDestroy: ");
         super.onDestroy();
-        timer = null;
     }
 
     private void getDeepQuotes(int seed,String postParam){
@@ -196,7 +157,7 @@ public class TimerService extends Service {
 
                             Log.d("DeepQuote2",responseStr);
 
-                            Message message = new Message();
+                            Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
                             message.obj = responseStr;
                             handler.sendMessage(message);
@@ -222,7 +183,7 @@ public class TimerService extends Service {
 
                             Log.d("DeepQuote3",responseStr);
 
-                            Message message = new Message();
+                            Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
                             message.obj = responseStr;
                             handler.sendMessage(message);
@@ -247,7 +208,7 @@ public class TimerService extends Service {
                             responseStr = responseJSON.getString("hitokoto");
                             Log.d("hikotoko",responseStr);
 
-                            Message message = new Message();
+                            Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
                             message.obj = responseStr;
                             handler.sendMessage(message);
@@ -274,7 +235,7 @@ public class TimerService extends Service {
                         data = element.get(i).select("span").text();
                     }
 
-                    Message message = new Message();
+                    Message message = handler.obtainMessage();
                     message.what = UPDATE_TEXT;
                     message.obj = data;
                     handler.sendMessage(message);
@@ -309,5 +270,4 @@ public class TimerService extends Service {
         client.newCall(request).enqueue(callback);
 
     }
-
 }
