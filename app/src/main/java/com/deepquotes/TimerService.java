@@ -84,8 +84,8 @@ public class TimerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("6666", String.valueOf(appConfigSP.getInt("当前刷新间隔(分钟):", 10)));
 
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()+UPDATE_DURATION,createPendingIntent());
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()+UPDATE_DURATION,createPendingIntent());
 
 
         if (appConfigSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
@@ -109,11 +109,11 @@ public class TimerService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private PendingIntent createPendingIntent(){
-        Intent alarmIntent = new Intent("CLOCK_WIDGET_UPDATE");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-        return pendingIntent;
-    }
+//    private PendingIntent createPendingIntent(){
+//        Intent alarmIntent = new Intent("CLOCK_WIDGET_UPDATE");
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
+//        return pendingIntent;
+//    }
 
     Handler handler = new Handler(){
         @Override
@@ -218,7 +218,7 @@ public class TimerService extends Service {
                         try {
                             String responseStr = response.body().string();
                             JSONObject responseJSON = new JSONObject(responseStr);
-                            responseStr = responseJSON.getString("txt");
+                            responseStr = responseJSON.getString("text");
 
                             Log.d("DeepQuote3",responseStr);
 
@@ -298,7 +298,7 @@ public class TimerService extends Service {
 
     private void getDeepQuote3(Callback callback){
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("https://data.zhai78.com/openOneBad.php").build();
+        Request request = new Request.Builder().url("https://api.yum6.cn/djt/index.php?encode=json").build();
         client.newCall(request).enqueue(callback);
     }
 

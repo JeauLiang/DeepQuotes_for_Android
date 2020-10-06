@@ -154,36 +154,36 @@ public class ScrollingActivity extends AppCompatActivity {
 //        int[] id = appWidgetManager.getAppWidgetIds(componentName);
 //        Log.d("appwidget信息",appWidgetManager.getAppWidgetInfo(id[0]).toString());
 
-        handler = new Handler(){
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                super.handleMessage(msg);
-                switch (msg.what){
-                    case UPDATE_TEXT:
-                        if (msg.obj != null) {
-                            String textMessage = msg.obj.toString();
-
-                            int currentQuote = historyQuotesSP.getInt("currentQuote",0);
-                            if (currentQuote > 100) currentQuote = 0;
-                            historyQuotesSPEditor.putString(String.valueOf(currentQuote),textMessage);
-                            int nextQuote = currentQuote + 1;
-                            historyQuotesSPEditor.putInt("currentQuote",nextQuote);
-                            historyQuotesSPEditor.apply();
-
-                            headlineTextView.setText(textMessage);
-                            headlineTextView.setTextSize(appConfigSP.getInt("字体大小:",20));
-
-                            remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
-                            remoteViews.setTextColor(R.id.quotes_textview, appConfigSP.getInt("fontColor", Color.WHITE));
-                            remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));
-                            appWidgetManager.updateAppWidget(componentName, remoteViews);
-                        }
-                        break;
-                    default:break;
-
-                }
-            }
-        };
+//        handler = new Handler(){
+//            @Override
+//            public void handleMessage(@NonNull Message msg) {
+//                super.handleMessage(msg);
+//                switch (msg.what){
+//                    case UPDATE_TEXT:
+//                        if (msg.obj != null) {
+//                            String textMessage = msg.obj.toString();
+//
+//                            int currentQuote = historyQuotesSP.getInt("currentQuote",0);
+//                            if (currentQuote > 100) currentQuote = 0;
+//                            historyQuotesSPEditor.putString(String.valueOf(currentQuote),textMessage);
+//                            int nextQuote = currentQuote + 1;
+//                            historyQuotesSPEditor.putInt("currentQuote",nextQuote);
+//                            historyQuotesSPEditor.apply();
+//
+//                            headlineTextView.setText(textMessage);
+//                            headlineTextView.setTextSize(appConfigSP.getInt("字体大小:",20));
+//
+//                            remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
+//                            remoteViews.setTextColor(R.id.quotes_textview, appConfigSP.getInt("fontColor", Color.WHITE));
+//                            remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));
+//                            appWidgetManager.updateAppWidget(componentName, remoteViews);
+//                        }
+//                        break;
+//                    default:break;
+//
+//                }
+//            }
+//        };
 
 
         updateNowTextView.setOnClickListener(new View.OnClickListener() {
@@ -191,23 +191,26 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("刷新","u click updata");
 
-                if (appConfigSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
-                    if (appConfigSP.getBoolean("随机",false))             //随机一言
-                        getDeepQuotes(new Random().nextInt(4), "");
-                    else {
-                        StringBuffer stringBuffer = new StringBuffer("?");
-                        if(appConfigSP.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
-                        if(appConfigSP.getBoolean("游戏",false)) stringBuffer.append("&c=c");
-                        if(appConfigSP.getBoolean("文学",false)) stringBuffer.append("&c=d");
-                        if(appConfigSP.getBoolean("影视",false)) stringBuffer.append("&c=h");
-                        if(appConfigSP.getBoolean("诗词",false)) stringBuffer.append("&c=i");
-                        if(appConfigSP.getBoolean("网易云",false)) stringBuffer.append("&c=j");
-                        Log.d("TAG","stringBuffer "+stringBuffer);
-                        getDeepQuotes(new Random().nextInt(4),stringBuffer.toString());
-                    }
-                }else {     //关闭一言
-                    getDeepQuotes(new Random().nextInt(3),"");
-                }
+                Intent intent = new Intent(ScrollingActivity.this,TimerService.class);
+                startService(intent);
+
+//                if (appConfigSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
+//                    if (appConfigSP.getBoolean("随机",false))             //随机一言
+//                        getDeepQuotes(new Random().nextInt(4), "");
+//                    else {
+//                        StringBuffer stringBuffer = new StringBuffer("?");
+//                        if(appConfigSP.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
+//                        if(appConfigSP.getBoolean("游戏",false)) stringBuffer.append("&c=c");
+//                        if(appConfigSP.getBoolean("文学",false)) stringBuffer.append("&c=d");
+//                        if(appConfigSP.getBoolean("影视",false)) stringBuffer.append("&c=h");
+//                        if(appConfigSP.getBoolean("诗词",false)) stringBuffer.append("&c=i");
+//                        if(appConfigSP.getBoolean("网易云",false)) stringBuffer.append("&c=j");
+//                        Log.d("TAG","stringBuffer "+stringBuffer);
+//                        getDeepQuotes(new Random().nextInt(4),stringBuffer.toString());
+//                    }
+//                }else {     //关闭一言
+//                    getDeepQuotes(new Random().nextInt(3),"");
+//                }
 
 //                remoteViews.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
 //                remoteViews.setTextColor(R.id.quotes_textview,sharedPreferences.getInt("fontColor",Color.WHITE));
@@ -723,134 +726,104 @@ public class ScrollingActivity extends AppCompatActivity {
             Toast.makeText(this,"你没有安装「酷安」app,请先安装",Toast.LENGTH_SHORT).show();
     }
 
-    private void getDeepQuotes(int seed,String postParam){
-        switch (seed){
-            case 0:
-                getDeepQuote();
-                break;
-            case 1:
-                getDeepQuote2(new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        try {
-                            String responseStr = response.body().string();
-                            JSONObject responseJSON = new JSONObject(responseStr);
-                            JSONObject quoteData = responseJSON.getJSONObject("data");
-                            responseStr = quoteData.getString("title");
-
-                            Log.d("DeepQuote2",responseStr);
-
-                            Message message = new Message();
-                            message.what = UPDATE_TEXT;
-                            message.obj = responseStr;
-                            handler.sendMessage(message);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                break;
-            case 2:
-                getDeepQuote3(new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        try {
-                            String responseStr = response.body().string();
-                            JSONObject responseJSON = new JSONObject(responseStr);
-                            responseStr = responseJSON.getString("text");
-
-                            Log.d("DeepQuote3",responseStr);
-
-                            Message message = new Message();
-                            message.what = UPDATE_TEXT;
-                            message.obj = responseStr;
-                            handler.sendMessage(message);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                break;
-            default:
-                getHitokotoQuote(postParam,new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        try {
-                            String responseStr = response.body().string();
-                            JSONObject responseJSON = new JSONObject(responseStr);
-                            responseStr = responseJSON.getString("hitokoto");
-                            Log.d("hikotoko",responseStr);
-
-                            Message message = new Message();
-                            message.what = UPDATE_TEXT;
-                            message.obj = responseStr;
-                            handler.sendMessage(message);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-
-
-        }
-    }
-
-    private void getDeepQuote(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String data=null;
-                try {
-                    Document document = Jsoup.connect("http://www.nows.fun/").get();
-                    Elements element = document.select("div.main-wrapper");
-                    for (int i=0;i<element.size();i++) {
-                        data = element.get(i).select("span").text();
-                    }
-
-                    Message message = new Message();
-                    message.what = UPDATE_TEXT;
-                    message.obj = data;
-                    handler.sendMessage(message);
-
-                    Log.d("DeepQuote1", data);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }catch (NullPointerException e){
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-        //return data;
-    }
-
-//    private void getDeepQuote2(){
-//        //https://www.nihaowua.com/home.html
+//    private void getDeepQuotes(int seed,String postParam){
+//        switch (seed){
+//            case 0:
+//                getDeepQuote();
+//                break;
+//            case 1:
+//                getDeepQuote2(new Callback() {
+//                    @Override
+//                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//                        try {
+//                            String responseStr = response.body().string();
+//                            JSONObject responseJSON = new JSONObject(responseStr);
+//                            JSONObject quoteData = responseJSON.getJSONObject("data");
+//                            responseStr = quoteData.getString("title");
+//
+//                            Log.d("DeepQuote2",responseStr);
+//
+//                            Message message = new Message();
+//                            message.what = UPDATE_TEXT;
+//                            message.obj = responseStr;
+//                            handler.sendMessage(message);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
+//                break;
+//            case 2:
+//                getDeepQuote3(new Callback() {
+//                    @Override
+//                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//                        try {
+//                            String responseStr = response.body().string();
+//                            JSONObject responseJSON = new JSONObject(responseStr);
+//                            responseStr = responseJSON.getString("text");
+//
+//                            Log.d("DeepQuote3",responseStr);
+//
+//                            Message message = new Message();
+//                            message.what = UPDATE_TEXT;
+//                            message.obj = responseStr;
+//                            handler.sendMessage(message);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
+//                break;
+//            default:
+//                getHitokotoQuote(postParam,new Callback() {
+//                    @Override
+//                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//                        try {
+//                            String responseStr = response.body().string();
+//                            JSONObject responseJSON = new JSONObject(responseStr);
+//                            responseStr = responseJSON.getString("hitokoto");
+//                            Log.d("hikotoko",responseStr);
+//
+//                            Message message = new Message();
+//                            message.what = UPDATE_TEXT;
+//                            message.obj = responseStr;
+//                            handler.sendMessage(message);
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
+//
+//
+//
+//        }
+//    }
+//
+//    private void getDeepQuote(){
 //        new Thread(new Runnable() {
 //            @Override
 //            public void run() {
+//                String data=null;
 //                try {
-//                    Document document = Jsoup.connect("https://www.nihaowua.com/home.html").get();
-//                    Elements element = document.select("div.post97");
-//                    String data = null;
-//                    for (int i=0;i<element.size();i++){
-//                        data = element.get(i).select("font").text();
-//                        Log.d("DeepQuote2",data);
+//                    Document document = Jsoup.connect("http://www.nows.fun/").get();
+//                    Elements element = document.select("div.main-wrapper");
+//                    for (int i=0;i<element.size();i++) {
+//                        data = element.get(i).select("span").text();
 //                    }
 //
 //                    Message message = new Message();
@@ -858,39 +831,69 @@ public class ScrollingActivity extends AppCompatActivity {
 //                    message.obj = data;
 //                    handler.sendMessage(message);
 //
+//                    Log.d("DeepQuote1", data);
 //                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }catch (NullPointerException e){
 //                    e.printStackTrace();
 //                }
 //            }
 //        }).start();
+//        //return data;
+//    }
+//
+////    private void getDeepQuote2(){
+////        //https://www.nihaowua.com/home.html
+////        new Thread(new Runnable() {
+////            @Override
+////            public void run() {
+////                try {
+////                    Document document = Jsoup.connect("https://www.nihaowua.com/home.html").get();
+////                    Elements element = document.select("div.post97");
+////                    String data = null;
+////                    for (int i=0;i<element.size();i++){
+////                        data = element.get(i).select("font").text();
+////                        Log.d("DeepQuote2",data);
+////                    }
+////
+////                    Message message = new Message();
+////                    message.what = UPDATE_TEXT;
+////                    message.obj = data;
+////                    handler.sendMessage(message);
+////
+////                } catch (IOException e) {
+////                    e.printStackTrace();
+////                }
+////            }
+////        }).start();
+////
+////    }
+//    private void getDeepQuote2(Callback callback){
+//        OkHttpClient client = new OkHttpClient();
+//        Request request = new Request.Builder().url("https://v1.alapi.cn/api/soul").build();
+//        client.newCall(request).enqueue(callback);
+//    }
+//
+//    private void getDeepQuote3(Callback callback){
+//        //https://www.apicp.cn/API/yan/api.php
+//        //↑↑↑↑↑↑↑2020.9.17已失效
+//
+//        //接口：https://data.zhai78.com/openOneBad.php不稳定回返回null
+//
+//        //https://api.yum6.cn/djt/index.php?encode=js
+//        //↑↑↑↑↑↑↑2020.10.6
+//        OkHttpClient client = new OkHttpClient();
+//        Request request = new Request.Builder().url("https://api.yum6.cn/djt/index.php?encode=json").build();
+//        client.newCall(request).enqueue(callback);
+//    }
+//
+//    private void getHitokotoQuote(String postParam,Callback callback){
+//
+//        OkHttpClient client = new OkHttpClient();
+//        Request request = new Request.Builder().url("https://v1.hitokoto.cn/"+postParam).build();
+//        client.newCall(request).enqueue(callback);
 //
 //    }
-    private void getDeepQuote2(Callback callback){
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("https://v1.alapi.cn/api/soul").build();
-        client.newCall(request).enqueue(callback);
-    }
-
-    private void getDeepQuote3(Callback callback){
-        //https://www.apicp.cn/API/yan/api.php
-        //↑↑↑↑↑↑↑2020.9.17已失效
-
-        //接口：https://data.zhai78.com/openOneBad.php不稳定回返回null
-
-        //https://api.yum6.cn/djt/index.php?encode=js
-        //↑↑↑↑↑↑↑2020.10.6
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("https://api.yum6.cn/djt/index.php?encode=json").build();
-        client.newCall(request).enqueue(callback);
-    }
-
-    private void getHitokotoQuote(String postParam,Callback callback){
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("https://v1.hitokoto.cn/"+postParam).build();
-        client.newCall(request).enqueue(callback);
-
-    }
 
     @Override
     protected void onDestroy() {

@@ -61,7 +61,7 @@ public class UpdateService extends JobService {
 
         if (appConfigSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
             if (appConfigSP.getBoolean("随机",false))             //随机一言
-                getDeepQuotes(new Random().nextInt(4), "");
+                getDeepQuotes(new Random().nextInt(4), "",params);
             else {
                 StringBuffer stringBuffer = new StringBuffer("?");
                 if(appConfigSP.getBoolean("动画、漫画",false)) stringBuffer.append("c=a&c=b");
@@ -71,12 +71,12 @@ public class UpdateService extends JobService {
                 if(appConfigSP.getBoolean("诗词",false)) stringBuffer.append("&c=i");
                 if(appConfigSP.getBoolean("网易云",false)) stringBuffer.append("&c=j");
                 Log.d("TAG","stringBuffer "+stringBuffer);
-                getDeepQuotes(new Random().nextInt(4),stringBuffer.toString());
+                getDeepQuotes(new Random().nextInt(4),stringBuffer.toString(),params);
             }
         }else {     //关闭一言
-            getDeepQuotes(new Random().nextInt(3),"");
+            getDeepQuotes(new Random().nextInt(3),"",params);
         }
-        return false;
+        return true;
     }
 
     Handler handler = new Handler(){
@@ -86,7 +86,9 @@ public class UpdateService extends JobService {
             switch (msg.what){
                 case UPDATE_TEXT:
                     if (msg.obj != null) {
-                        String textMessage = msg.obj.toString();
+//                        String textMessage = msg.obj.toString();
+                        Quotes quotes = (Quotes) msg.obj;
+                        String textMessage = quotes.getQuote();
 
                         //                        headlineTextView.setText(textMessage);
                         int currentQuote = historyQuotesSP.getInt("currentQuote",0);
@@ -113,6 +115,7 @@ public class UpdateService extends JobService {
                         ComponentName componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
                         appWidgetManager.updateAppWidget(componentName, remoteViews);
 
+                        jobFinished(quotes.getJobParameters(),false);
 
                     }
                     break;
@@ -135,10 +138,10 @@ public class UpdateService extends JobService {
         super.onDestroy();
     }
 
-    private void getDeepQuotes(int seed,String postParam){
+    private void getDeepQuotes(int seed, String postParam, final JobParameters parameters){
         switch (seed){
             case 0:
-                getDeepQuote();
+                getDeepQuote(parameters);
                 break;
             case 1:
                 getDeepQuote2(new Callback() {
@@ -159,7 +162,9 @@ public class UpdateService extends JobService {
 
                             Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
-                            message.obj = responseStr;
+                            Quotes quotes = new Quotes(responseStr,parameters);
+                            message.obj = quotes;
+
                             handler.sendMessage(message);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -185,7 +190,8 @@ public class UpdateService extends JobService {
 
                             Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
-                            message.obj = responseStr;
+                            Quotes quotes = new Quotes(responseStr,parameters);
+                            message.obj = quotes;
                             handler.sendMessage(message);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -210,7 +216,8 @@ public class UpdateService extends JobService {
 
                             Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
-                            message.obj = responseStr;
+                            Quotes quotes = new Quotes(responseStr,parameters);
+                            message.obj = quotes;
                             handler.sendMessage(message);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -223,7 +230,7 @@ public class UpdateService extends JobService {
         }
     }
 
-    private void getDeepQuote(){
+    private void getDeepQuote(final JobParameters parameters){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -237,7 +244,8 @@ public class UpdateService extends JobService {
 
                     Message message = handler.obtainMessage();
                     message.what = UPDATE_TEXT;
-                    message.obj = data;
+                    Quotes quotes = new Quotes(data,parameters);
+                    message.obj = quotes;
                     handler.sendMessage(message);
 
                     Log.d("DeepQuote1", data);
