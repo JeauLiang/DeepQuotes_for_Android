@@ -767,7 +767,7 @@ public class ScrollingActivity extends AppCompatActivity {
                         try {
                             String responseStr = response.body().string();
                             JSONObject responseJSON = new JSONObject(responseStr);
-                            responseStr = responseJSON.getString("txt");
+                            responseStr = responseJSON.getString("text");
 
                             Log.d("DeepQuote3",responseStr);
 
@@ -875,9 +875,12 @@ public class ScrollingActivity extends AppCompatActivity {
         //https://www.apicp.cn/API/yan/api.php
         //↑↑↑↑↑↑↑2020.9.17已失效
 
-        //新接口：https://data.zhai78.com/openOneBad.php
+        //接口：https://data.zhai78.com/openOneBad.php不稳定回返回null
+
+        //https://api.yum6.cn/djt/index.php?encode=js
+        //↑↑↑↑↑↑↑2020.10.6
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("https://data.zhai78.com/openOneBad.php").build();
+        Request request = new Request.Builder().url("https://api.yum6.cn/djt/index.php?encode=json").build();
         client.newCall(request).enqueue(callback);
     }
 

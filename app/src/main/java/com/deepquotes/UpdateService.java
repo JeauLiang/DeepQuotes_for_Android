@@ -126,7 +126,7 @@ public class UpdateService extends JobService {
     @Override
     public boolean onStopJob(JobParameters params) {
         Log.i(TAG, "onStopJob: ");
-        return false;
+        return true;
     }
 
     @Override
@@ -179,7 +179,7 @@ public class UpdateService extends JobService {
                         try {
                             String responseStr = response.body().string();
                             JSONObject responseJSON = new JSONObject(responseStr);
-                            responseStr = responseJSON.getString("txt");
+                            responseStr = responseJSON.getString("text");
 
                             Log.d("DeepQuote3",responseStr);
 
@@ -259,7 +259,7 @@ public class UpdateService extends JobService {
 
     private void getDeepQuote3(Callback callback){
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("https://data.zhai78.com/openOneBad.php").build();
+        Request request = new Request.Builder().url("https://api.yum6.cn/djt/index.php?encode=json").build();
         client.newCall(request).enqueue(callback);
     }
 
