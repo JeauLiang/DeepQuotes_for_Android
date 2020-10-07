@@ -82,7 +82,7 @@ public class TimerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("6666", String.valueOf(appConfigSP.getInt("当前刷新间隔(分钟):", 10)));
+        Log.d("6666", String.valueOf(appConfigSP.getInt("当前刷新间隔(分钟):", 15)));
 
 //        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 //        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()+UPDATE_DURATION,createPendingIntent());

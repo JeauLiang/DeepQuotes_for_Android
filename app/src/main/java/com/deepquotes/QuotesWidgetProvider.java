@@ -35,13 +35,16 @@ import okhttp3.Response;
 import static android.appwidget.AppWidgetManager.ACTION_APPWIDGET_DELETED;
 import static android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE;
 import static android.appwidget.AppWidgetManager.getInstance;
+import static android.content.Context.MODE_PRIVATE;
+import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
 public class QuotesWidgetProvider extends AppWidgetProvider {
 
     public static final String ACTION_CLICK = "com.deepquotes.ACTION_CLICK";
     private static Set idsSet = new HashSet();
     public static int mIndex;
-    private SharedPreferences sharedPreferences;
+    private SharedPreferences historyQuotesSP ;
+    private SharedPreferences appConfigSP;
 
 
     private static final int UPDATE_DURATION = 30 * 1000; // Widget 更新间隔
@@ -52,8 +55,10 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
 //    @Override
 //    public void onReceive(Context context, Intent intent) {
 //        super.onReceive(context, intent);
+
+
 //        String action = intent.getAction();
-////        Log.d("TAG", "onReceive: 定时更新"+action);
+//        Log.d("TAG", "onReceive: 定时更新"+action);
 //        if (action.equals("CLOCK_WIDGET_UPDATE")) {
 //            Toast.makeText(context, "定时更新", Toast.LENGTH_SHORT).show();
 //            Log.d("TAG", "onReceive: 定时更新");
@@ -110,18 +115,28 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
 //        }else context.getApplicationContext().startService(intent);
 
 //        Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
-        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        ComponentName componentName = new ComponentName(context,UpdateService.class);
-        JobInfo jobInfo = new JobInfo.Builder(12345,componentName)
-                .setPeriodic(15*60*1000)
-                .build();
-        jobScheduler.schedule(jobInfo);
+
+        if (historyQuotesSP==null)
+            historyQuotesSP = context.getSharedPreferences("historyQuotes",MODE_PRIVATE);
+        if (appConfigSP==null)
+            appConfigSP = context.getSharedPreferences("appConfig",MODE_PRIVATE);
+
+
 
         final int N = appWidgetIds.length;
         for (int i=0; i<N; i++){
             int appWidgetId = appWidgetIds[i];
+
             RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
             views.setTextColor(R.id.quotes_textview,Color.WHITE);
+            int current = historyQuotesSP.getInt("currentQuote",0);
+            views.setTextViewText(R.id.quotes_textview,historyQuotesSP.getString(String.valueOf(current),"欲买桂花同载酒，终不似，少年游"));
+            views.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));
+            Intent openIntent = new Intent(context, ScrollingActivity.class);
+            openIntent.setPackage(context.getPackageName());
+            PendingIntent openPendingIntent = PendingIntent.getActivity(context, 0, openIntent, 0);
+            views.setOnClickPendingIntent(R.id.quotes_textview, openPendingIntent);
+
             appWidgetManager.updateAppWidget(appWidgetId,views);
         }
 
@@ -152,11 +167,21 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public void onEnabled(Context context) {
         super.onEnabled(context);
 
+        appConfigSP = context.getSharedPreferences("appConfig",MODE_PRIVATE);
+        int duration = appConfigSP.getInt("当前刷新间隔(分钟):",15);
+
+        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        ComponentName componentName = new ComponentName(context,UpdateService.class);
+        JobInfo jobInfo = new JobInfo.Builder(12345,componentName)
+                .setPeriodic(duration*60*1000)
+                .build();
+        jobScheduler.schedule(jobInfo);
 
 
 
 
         Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
+        Log.i("TAG", "onEnabled: ");
 //        Intent startTimerIntent = new Intent(context, TimerService.class);
 ////        startTimerIntent.putExtra("refreshTime",sharedPreferences.getInt("当前刷新间隔(分钟):",10));
 //        context.startService(startTimerIntent);

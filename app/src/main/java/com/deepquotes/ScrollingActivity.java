@@ -145,7 +145,7 @@ public class ScrollingActivity extends AppCompatActivity {
         updateHistoryQuotes();
         int defaultNum = historyQuotesSP.getInt("currentQuote",0);
 
-        headlineTextView.setText(historyQuotesSP.getString(String.valueOf(defaultNum-1),"欲买桂花同载酒，终不似，少年游"));
+        headlineTextView.setText(historyQuotesSP.getString(String.valueOf(defaultNum),"欲买桂花同载酒，终不似，少年游"));
 
 
 
@@ -414,17 +414,19 @@ public class ScrollingActivity extends AppCompatActivity {
         builder.setView(layoutView);
 
         final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
-        refreshTimeSeekBar.setMax(119);
+        //一天1440分钟，96等分，一等分15分钟，seekbar数值：0~95
+        refreshTimeSeekBar.setMax(95);
         final TextView textView = layoutView.findViewById(R.id.seekbar_select_layout_textview);
 
-        textView.setText("当前刷新间隔(分钟):" + appConfigSP.getInt("当前刷新间隔(分钟):",10));
-        refreshTimeSeekBar.setProgress(appConfigSP.getInt("当前刷新间隔(分钟):",10));
+        int defaultValue = appConfigSP.getInt("当前刷新间隔(分钟):",15);
+        textView.setText("当前刷新间隔(分钟):" + defaultValue);
+        refreshTimeSeekBar.setProgress(defaultValue/15);
 //        final int[] stepTime = new int[1];
 
         refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                textView.setText("当前刷新间隔(分钟):"+(i+1));
+                textView.setText("当前刷新间隔(分钟):" + (i+1)*15);
             }
 
             @Override
@@ -440,8 +442,19 @@ public class ScrollingActivity extends AppCompatActivity {
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                appConfigSPEditor.putInt("当前刷新间隔(分钟):",refreshTimeSeekBar.getProgress()+1);
+                int newRefreshTime = (refreshTimeSeekBar.getProgress()+1)*15;
+                appConfigSPEditor.putInt("当前刷新间隔(分钟):",newRefreshTime);
                 appConfigSPEditor.apply();
+
+                JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                jobScheduler.cancel(12345);
+
+                ComponentName componentName = new ComponentName(ScrollingActivity.this,UpdateService.class);
+                JobInfo jobInfo = new JobInfo.Builder(12345,componentName)
+                        .setPeriodic(newRefreshTime*60*1000)
+                        .build();
+                jobScheduler.schedule(jobInfo);
+
 
 //                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress()+1);
 //                appWidgetManager.updateAppWidget(componentName,remoteViews);
@@ -510,26 +523,26 @@ public class ScrollingActivity extends AppCompatActivity {
 
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_scrolling, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_scrolling, menu);
+//        return true;
+//    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
 
     public void selectHitokotoType(View v){

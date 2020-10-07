@@ -115,6 +115,8 @@ public class UpdateService extends JobService {
                         ComponentName componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
                         appWidgetManager.updateAppWidget(componentName, remoteViews);
 
+//                        int refreshTime = appConfigSP.getInt("当前刷新间隔(分钟):",15);
+
                         jobFinished(quotes.getJobParameters(),false);
 
                     }
