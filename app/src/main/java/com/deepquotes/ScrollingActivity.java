@@ -70,7 +70,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
-import static com.deepquotes.Quotes.UPDATE_TEXT;
 
 public class ScrollingActivity extends AppCompatActivity {
 
@@ -103,12 +102,11 @@ public class ScrollingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
 
-
+        Log.d(TAG, "onCreate: "+savedInstanceState);
 
         appConfigSP = getSharedPreferences("appConfig",MODE_PRIVATE);
         appConfigSPEditor = appConfigSP.edit();
-        historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
-        historyQuotesSPEditor = historyQuotesSP.edit();
+
 
         intentFilter = new IntentFilter();
         intentFilter.addAction("com.deepquotes.broadcast.updateTextView");
@@ -123,8 +121,6 @@ public class ScrollingActivity extends AppCompatActivity {
         final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto);
         final TextView hitokotoType = findViewById(R.id.hitokoto_type);
         headlineTextView = findViewById(R.id.headline_text_view);
-        headlineTextView.setTextColor(appConfigSP.getInt("fontColor",Color.WHITE));
-        headlineTextView.setTextSize(appConfigSP.getInt("字体大小:",20));
         TextView updateNowTextView = findViewById(R.id.update_now);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -142,10 +138,6 @@ public class ScrollingActivity extends AppCompatActivity {
         appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
 
-        updateHistoryQuotes();
-        int defaultNum = historyQuotesSP.getInt("currentQuote",0);
-
-        headlineTextView.setText(historyQuotesSP.getString(String.valueOf(defaultNum),"欲买桂花同载酒，终不似，少年游"));
 
 
 
@@ -318,14 +310,36 @@ public class ScrollingActivity extends AppCompatActivity {
                 }
         );
 
+    }
 
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
+        historyQuotesSPEditor = historyQuotesSP.edit();
+        int defaultNum = historyQuotesSP.getInt("currentQuote",0);
+        Log.d(TAG, "onStart: "+defaultNum);
+        Log.d(TAG, "onStart: "+String.valueOf(defaultNum-1));
+
+        headlineTextView.setTextColor(appConfigSP.getInt("fontColor",Color.WHITE));
+        headlineTextView.setTextSize(appConfigSP.getInt("字体大小:",20));
+        headlineTextView.setText(historyQuotesSP.getString(String.valueOf(defaultNum-1),"欲买桂花同载酒，终不似，少年游"));
+
+        updateHistoryQuotes();
 
     }
 
+
     private void updateHistoryQuotes() {
         List<String> myList = new ArrayList<>(100);
-        for (int inWchichQuote = 0; inWchichQuote < historyQuotesSP.getInt("currentQuote", 0); inWchichQuote++)
+        int maxNum;
+        String maxNumQuote = historyQuotesSP.getString("100", "null");
+        if (maxNumQuote.equals("null"))
+            maxNum = historyQuotesSP.getInt("currentQuote", 0);
+        else maxNum = 100;
+        for (int inWchichQuote = 0; inWchichQuote < maxNum; inWchichQuote++)
             myList.add(historyQuotesSP.getString(String.valueOf(inWchichQuote), "null"));
 //        myList.add("456");
 //        myList.add("789");
@@ -356,7 +370,7 @@ public class ScrollingActivity extends AppCompatActivity {
         builder.setView(layoutView);
         layoutView.setBackgroundColor(getResources().getColor(R.color.background_color));
         final SeekBar refreshTimeSeekBar = layoutView.findViewById(R.id.seekbar_select_layout_seekbar);
-        refreshTimeSeekBar.setMax(30);
+        refreshTimeSeekBar.setMax(29);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             refreshTimeSeekBar.setMin(10);
@@ -369,8 +383,8 @@ public class ScrollingActivity extends AppCompatActivity {
         refreshTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                textView.setText("字体大小:"+i);
-                Log.d("字体大小", ": "+i);
+                textView.setText("字体大小:" + (i+1));
+                Log.d("字体大小", ": "+ (i+1));
             }
 
             @Override
@@ -386,11 +400,11 @@ public class ScrollingActivity extends AppCompatActivity {
         builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                appConfigSPEditor.putInt("字体大小:",refreshTimeSeekBar.getProgress());
+                appConfigSPEditor.putInt("字体大小:",refreshTimeSeekBar.getProgress()+1);
                 appConfigSPEditor.apply();
 
                 headlineTextView.setTextSize(refreshTimeSeekBar.getProgress());
-                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress());
+                remoteViews.setTextViewTextSize(R.id.quotes_textview,COMPLEX_UNIT_SP,refreshTimeSeekBar.getProgress()+1);
                 appWidgetManager.updateAppWidget(componentName,remoteViews);
             }
         });
@@ -584,6 +598,7 @@ public class ScrollingActivity extends AppCompatActivity {
         final CheckBox iCheckbox = layoutView.findViewById(R.id.poetry_checkbox);
         final CheckBox jCheckbox = layoutView.findViewById(R.id.neteasemusic_checkbox);
 
+
         List<CheckBox> checkBoxGroup = new ArrayList<CheckBox>();
         checkBoxGroup.add(randomCheckbox);
         checkBoxGroup.add(abCheckbox);
@@ -596,6 +611,7 @@ public class ScrollingActivity extends AppCompatActivity {
         for (CheckBox i:checkBoxGroup){
             i.setChecked (appConfigSP.getBoolean(i.getText().toString(),false));
         }
+
 
 
 

@@ -133,7 +133,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
             views.setTextViewText(R.id.quotes_textview,historyQuotesSP.getString(String.valueOf(current),"欲买桂花同载酒，终不似，少年游"));
             views.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));
             Intent openIntent = new Intent(context, ScrollingActivity.class);
-            openIntent.setPackage(context.getPackageName());
+
             PendingIntent openPendingIntent = PendingIntent.getActivity(context, 0, openIntent, 0);
             views.setOnClickPendingIntent(R.id.quotes_textview, openPendingIntent);
 
