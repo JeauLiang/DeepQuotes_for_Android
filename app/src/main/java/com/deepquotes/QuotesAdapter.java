@@ -50,7 +50,7 @@ public class QuotesAdapter extends RecyclerView.Adapter<QuotesAdapter.ViewHolder
                 int position = viewHolder.getAdapterPosition();
                 String quote = (String) quotesList.get(position);
                 clipboardManager.setPrimaryClip(ClipData.newPlainText("quote",quote + "——来自「相顾无言」"));
-                Toast.makeText(view.getContext(),"u click "+quote,Toast.LENGTH_SHORT).show();
+                Toast.makeText(view.getContext(),"文字已复制",Toast.LENGTH_SHORT).show();
                 return false;
             }
         });

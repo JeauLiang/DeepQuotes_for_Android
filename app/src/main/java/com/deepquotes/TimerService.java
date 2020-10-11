@@ -43,14 +43,6 @@ public class TimerService extends Service {
     private SharedPreferences historyQuotesSP;
     private SharedPreferences.Editor historyQuotesSPEditor;
 
-    private Timer timer;
-
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    private int refreshTime;
-    private TextView headlineTextView;
-
-    private static final int UPDATE_DURATION = 30 * 1000; // Widget 更新间隔
 
 
 
@@ -67,21 +59,11 @@ public class TimerService extends Service {
         appConfigSP = getSharedPreferences("appConfig",MODE_PRIVATE);
         historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
         historyQuotesSPEditor = historyQuotesSP.edit();
-//        timer = new Timer();
-//        timer.schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                updateViews();
-//            }
-//        }, 0, 1000);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("6666", String.valueOf(appConfigSP.getInt("当前刷新间隔(分钟):", 15)));
-
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()+UPDATE_DURATION,createPendingIntent());
 
 
         if (appConfigSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
@@ -105,11 +87,6 @@ public class TimerService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-//    private PendingIntent createPendingIntent(){
-//        Intent alarmIntent = new Intent("CLOCK_WIDGET_UPDATE");
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-//        return pendingIntent;
-//    }
 
     Handler handler = new Handler(){
         @Override
@@ -156,18 +133,8 @@ public class TimerService extends Service {
 
 
 
-    private void updateViews() {
-        String time = sdf.format(new Date());
-        RemoteViews rv = new RemoteViews(getPackageName(), R.layout.quotes_layout);
-        rv.setTextViewText(R.id.quotes_textview, "666 ： " + time);
-        AppWidgetManager manager = AppWidgetManager.getInstance(getApplicationContext());
-        ComponentName cn = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
-        manager.updateAppWidget(cn, rv);
-    }
-
     public void onDestroy() {
         super.onDestroy();
-        timer = null;
     }
 
     private void getDeepQuotes(int seed,String postParam){

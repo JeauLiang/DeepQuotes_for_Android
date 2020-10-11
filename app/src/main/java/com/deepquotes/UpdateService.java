@@ -98,7 +98,7 @@ public class UpdateService extends JobService {
                         Log.d("currentQuote",String.valueOf(currentQuote));
                         int nextQuote = currentQuote+1;
                         historyQuotesSPEditor.putInt("currentQuote",nextQuote);
-                        historyQuotesSPEditor.apply();
+                        historyQuotesSPEditor.commit();
                         Log.d("nextQuote",String.valueOf(nextQuote));
 
 

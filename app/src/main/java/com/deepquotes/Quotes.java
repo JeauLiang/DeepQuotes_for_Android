@@ -28,7 +28,6 @@ import okhttp3.Response;
 
 public class Quotes {
 
-    //https://www.nihaowua.com/home.html
 
     public static final int UPDATE_TEXT = 123456;
     private String quote;

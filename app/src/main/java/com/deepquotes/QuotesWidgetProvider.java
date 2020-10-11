@@ -40,62 +40,10 @@ import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
 public class QuotesWidgetProvider extends AppWidgetProvider {
 
-    public static final String ACTION_CLICK = "com.deepquotes.ACTION_CLICK";
-    private static Set idsSet = new HashSet();
-    public static int mIndex;
     private SharedPreferences historyQuotesSP ;
     private SharedPreferences appConfigSP;
 
 
-    private static final int UPDATE_DURATION = 30 * 1000; // Widget 更新间隔
-
-
-
-//    //窗口小部件点击时调用
-//    @Override
-//    public void onReceive(Context context, Intent intent) {
-//        super.onReceive(context, intent);
-
-
-//        String action = intent.getAction();
-//        Log.d("TAG", "onReceive: 定时更新"+action);
-//        if (action.equals("CLOCK_WIDGET_UPDATE")) {
-//            Toast.makeText(context, "定时更新", Toast.LENGTH_SHORT).show();
-//            Log.d("TAG", "onReceive: 定时更新");
-//
-//
-//            Intent i = new Intent(context.getApplicationContext(),TimerService.class);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                context.startForegroundService(i);
-//            }else context.getApplicationContext().startService(i);
-//            //getQuotes(context);
-//            //updateAllWidget();
-//        }
-//    }
-
-//    private void updateAllWidget(Context context, AppWidgetManager appWidgetManager, Set set) {
-//        int appId;
-//        Iterator it = set.iterator();
-//
-//        mIndex++;
-//
-//        while (it.hasNext()){
-//            appId = ((Integer)it.next()).intValue();
-//
-//            RemoteViews remoteViews = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
-//            remoteViews.setTextViewText(R.id.quotes_textview,String.valueOf(mIndex));
-//            remoteViews.setOnClickPendingIntent(R.id.quotes_textview,updateQuotesIntent(context));
-//        }
-//    }
-//
-//    private PendingIntent updateQuotesIntent(Context context) {
-//        Intent intent = new Intent();
-//        intent.setClass(context,QuotesWidgetProvider.class);
-//        intent.addCategory(Intent.CATEGORY_ALTERNATIVE);
-//        PendingIntent pi = PendingIntent.getBroadcast(context,0,intent,0);
-//        return pi;
-//
-//    }
 
 
     //窗口小部件更新时时调用
@@ -109,12 +57,6 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
 
         Log.d("QuotesWidgetProvider", "onUpdate: "+context);
 
-//        Intent intent = new Intent(context.getApplicationContext(),TimerService.class);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            context.startForegroundService(intent);
-//        }else context.getApplicationContext().startService(intent);
-
-//        Toast.makeText(context,"你更新了控件",Toast.LENGTH_SHORT).show();
 
         if (historyQuotesSP==null)
             historyQuotesSP = context.getSharedPreferences("historyQuotes",MODE_PRIVATE);
@@ -130,21 +72,17 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
             RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
             views.setTextColor(R.id.quotes_textview,Color.WHITE);
             int current = historyQuotesSP.getInt("currentQuote",0);
-            views.setTextViewText(R.id.quotes_textview,historyQuotesSP.getString(String.valueOf(current),"欲买桂花同载酒，终不似，少年游"));
+            String quote = historyQuotesSP.getString(String.valueOf(current),"欲买桂花同载酒，终不似，少年游");
+            views.setTextViewText(R.id.quotes_textview,quote);
             views.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));
             Intent openIntent = new Intent(context, ScrollingActivity.class);
-
+//            openIntent.putExtra("quote",quote);
             PendingIntent openPendingIntent = PendingIntent.getActivity(context, 0, openIntent, 0);
             views.setOnClickPendingIntent(R.id.quotes_textview, openPendingIntent);
 
             appWidgetManager.updateAppWidget(appWidgetId,views);
         }
 
-//        views.setTextViewText(R.id.quotes_textview,"控件更新: "+ Math.random());
-//        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.quotes_layout);
-////        views.setTextViewText(R.id.quotes_textview, "66666");
-////        // Instruct the widget manager to update the widget
-//        appWidgetManager.updateAppWidget(appWidgetIds, views);
 
     }
 
@@ -153,12 +91,6 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public void onDeleted(Context context, int[] appWidgetIds) {
         super.onDeleted(context, appWidgetIds);
         Toast.makeText(context,"你删除了控件",Toast.LENGTH_SHORT).show();
-    }
-
-    private PendingIntent createPendingIntent(Context context){
-        Intent alarmIntent = new Intent(context.getApplicationContext(),TimerService.class);
-        PendingIntent pendingIntent = PendingIntent.getService(context.getApplicationContext(),0,alarmIntent,PendingIntent.FLAG_UPDATE_CURRENT);
-        return pendingIntent;
     }
 
 
@@ -219,52 +151,5 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
 
 
 
-
-//    public void getQuotes(final Context context){
-//        final int requestCode = new Random().nextInt(4);
-//        switch (requestCode){
-//            case 1:
-//                new Quotes().getHitokotoQuotes(new Callback() {
-//                    @Override
-//                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-//                        String responseData = response.body().string();
-//                        try {
-//                            JSONObject jsonObject = new JSONObject(responseData);
-//                            Toast.makeText(context,jsonObject.get("hitokoto").toString(),Toast.LENGTH_SHORT).show();
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-//                break;
-//            case 2:
-//                new Quotes().getDeepQuotes();
-//                break;
-//            case 3:
-//                new Quotes().getDeepQuotes2(new Callback() {
-//                    @Override
-//                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-//                        String responseData = response.body().string();
-//                        Toast.makeText(context,responseData,Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//                break;
-//            case 4:
-//                new Quotes().getDeepQuotes3();
-//                break;
-//            default:
-//                break;
-//        }
-//    }
 
 }
