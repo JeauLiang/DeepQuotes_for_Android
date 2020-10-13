@@ -106,6 +106,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
         ComponentName componentName = new ComponentName(context,UpdateService.class);
         JobInfo jobInfo = new JobInfo.Builder(12345,componentName)
                 .setPeriodic(duration*60*1000)
+                .setPersisted(true)
                 .build();
         jobScheduler.schedule(jobInfo);
 
