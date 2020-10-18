@@ -24,7 +24,6 @@
             android:name=".UpdateService"
             android:enabled="true"
             android:exported="false"
-            android:process=":remote"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
 
         <receiver android:name=".QuotesWidgetProvider">

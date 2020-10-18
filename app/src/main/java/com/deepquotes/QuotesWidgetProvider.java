@@ -51,11 +51,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
-//        AlarmManager alarmManager = (AlarmManager) context.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-//
-//        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),UPDATE_DURATION,createPendingIntent(context));
-
-        Log.d("QuotesWidgetProvider", "onUpdate: "+context);
+//        Log.d("QuotesWidgetProvider", "onUpdate: "+context);
 
 
         if (historyQuotesSP==null)
@@ -90,7 +86,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         super.onDeleted(context, appWidgetIds);
-        Toast.makeText(context,"你删除了控件",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context,"你删除了控件",Toast.LENGTH_SHORT).show();
     }
 
 
@@ -113,8 +109,8 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
 
 
 
-        Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
-        Log.i("TAG", "onEnabled: ");
+//        Toast.makeText(context,"你添加了了控件",Toast.LENGTH_SHORT).show();
+//        Log.i("TAG", "onEnabled: ");
 //        Intent startTimerIntent = new Intent(context, TimerService.class);
 ////        startTimerIntent.putExtra("refreshTime",sharedPreferences.getInt("当前刷新间隔(分钟):",10));
 //        context.startService(startTimerIntent);
@@ -124,7 +120,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
         super.onDisabled(context);
-        Toast.makeText(context,"你删除了最后一个控件",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context,"你删除了最后一个控件",Toast.LENGTH_SHORT).show();
 
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         jobScheduler.cancel(12345);
@@ -139,7 +135,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle newOptions) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions);
-        Toast.makeText(context,"你改变了控件大小",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context,"你改变了控件大小",Toast.LENGTH_SHORT).show();
     }
 
 
@@ -147,7 +143,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
     @Override
     public void onRestored(Context context, int[] oldWidgetIds, int[] newWidgetIds) {
         super.onRestored(context, oldWidgetIds, newWidgetIds);
-        Toast.makeText(context,"你恢复控件",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context,"你恢复控件",Toast.LENGTH_SHORT).show();
     }
 
 

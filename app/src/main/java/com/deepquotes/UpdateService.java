@@ -56,7 +56,7 @@ public class UpdateService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
-        Log.i(TAG, "onStartJob: ");
+//        Log.i(TAG, "onStartJob: ");
 
 
         if (appConfigSP.getBoolean("isEnableHitokoto",false)) {   //启用一言
@@ -70,7 +70,7 @@ public class UpdateService extends JobService {
                 if(appConfigSP.getBoolean("影视",false)) stringBuffer.append("&c=h");
                 if(appConfigSP.getBoolean("诗词",false)) stringBuffer.append("&c=i");
                 if(appConfigSP.getBoolean("网易云",false)) stringBuffer.append("&c=j");
-                Log.d("TAG","stringBuffer "+stringBuffer);
+//                Log.d("TAG","stringBuffer "+stringBuffer);
                 getDeepQuotes(new Random().nextInt(4),stringBuffer.toString(),params);
             }
         }else {     //关闭一言
@@ -79,10 +79,9 @@ public class UpdateService extends JobService {
         return true;
     }
 
-    Handler handler = new Handler(){
+    Handler handler = new Handler(Looper.myLooper(),new Handler.Callback() {
         @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
+        public boolean handleMessage(@NonNull Message msg) {
             switch (msg.what){
                 case UPDATE_TEXT:
                     if (msg.obj != null) {
@@ -95,16 +94,16 @@ public class UpdateService extends JobService {
                         if (currentQuote > 99) currentQuote=0;
 
                         historyQuotesSPEditor.putString(String.valueOf(currentQuote),textMessage);
-                        Log.d("currentQuote",String.valueOf(currentQuote));
+//                        Log.d("currentQuote",String.valueOf(currentQuote));
                         int nextQuote = currentQuote+1;
                         historyQuotesSPEditor.putInt("currentQuote",nextQuote);
-                        historyQuotesSPEditor.commit();
-                        Log.d("nextQuote",String.valueOf(nextQuote));
+                        historyQuotesSPEditor.apply();
+//                        Log.d("nextQuote",String.valueOf(nextQuote));
 
 
                         Intent updatetext = new Intent("com.deepquotes.broadcast.updateTextView");
                         updatetext.putExtra("quote",textMessage);
-                        Log.d("广播","already send broadcast");
+//                        Log.d("广播","already send broadcast");
                         sendBroadcast(updatetext);
 
                         RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
@@ -118,25 +117,30 @@ public class UpdateService extends JobService {
 //                        int refreshTime = appConfigSP.getInt("当前刷新间隔(分钟):",15);
 
                         jobFinished(quotes.getJobParameters(),false);
+//                        Log.i(TAG, "handleMessage: job finish");
 
                     }
                     break;
                 default:break;
 
             }
+            return false;
         }
-    };
+    });
+
 
 
     @Override
     public boolean onStopJob(JobParameters params) {
-        Log.i(TAG, "onStopJob: ");
+//        Log.i(TAG, "onStopJob: ");
         return true;
     }
 
+
+
     @Override
     public void onDestroy() {
-        Log.i(TAG, "onDestroy: ");
+//        Log.i(TAG, "onDestroy: ");
         super.onDestroy();
     }
 
@@ -157,10 +161,15 @@ public class UpdateService extends JobService {
                         try {
                             String responseStr = response.body().string();
                             JSONObject responseJSON = new JSONObject(responseStr);
-                            JSONObject quoteData = responseJSON.getJSONObject("data");
-                            responseStr = quoteData.getString("title");
+                            if (responseJSON.getInt("code") == 429)
+//                                responseStr = responseJSON.getString("msg");
+                                responseStr = "每日调用次数已达上限";
+                            else {
+                                JSONObject quoteData = responseJSON.getJSONObject("data");
+                                responseStr = quoteData.getString("title");
+                            }
 
-                            Log.d("DeepQuote2",responseStr);
+//                            Log.d("DeepQuote2",responseStr);
 
                             Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
@@ -168,6 +177,7 @@ public class UpdateService extends JobService {
                             message.obj = quotes;
 
                             handler.sendMessage(message);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -188,7 +198,7 @@ public class UpdateService extends JobService {
                             JSONObject responseJSON = new JSONObject(responseStr);
                             responseStr = responseJSON.getString("text");
 
-                            Log.d("DeepQuote3",responseStr);
+//                            Log.d("DeepQuote3",responseStr);
 
                             Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
@@ -214,7 +224,7 @@ public class UpdateService extends JobService {
                             String responseStr = response.body().string();
                             JSONObject responseJSON = new JSONObject(responseStr);
                             responseStr = responseJSON.getString("hitokoto");
-                            Log.d("hikotoko",responseStr);
+//                            Log.d("hikotoko",responseStr);
 
                             Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
@@ -250,7 +260,7 @@ public class UpdateService extends JobService {
                     message.obj = quotes;
                     handler.sendMessage(message);
 
-                    Log.d("DeepQuote1", data);
+//                    Log.d("DeepQuote1", data);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }catch (NullPointerException e){

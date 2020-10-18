@@ -75,7 +75,6 @@ public class ScrollingActivity extends AppCompatActivity {
     private AppWidgetManager appWidgetManager;
     private ComponentName componentName;
 
-    private Handler handler;
     private myBroadcast broadcast;
     private IntentFilter intentFilter;
 
@@ -129,7 +128,7 @@ public class ScrollingActivity extends AppCompatActivity {
         updateNowTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("刷新","u click updata");
+//                Log.d("刷新","u click updata");
 
                 Intent intent = new Intent(ScrollingActivity.this,TimerService.class);
                 startService(intent);
@@ -206,7 +205,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
                     @Override
                     public void onColorConfirm(ColorPickerDialog dialog, int color) {
-                        Log.w("color",String.valueOf(color));
+//                        Log.w("color",String.valueOf(color));
                         headlineTextView.setTextColor(color);
 
                         appConfigSPEditor.putInt("fontColor",color);
@@ -228,7 +227,7 @@ public class ScrollingActivity extends AppCompatActivity {
         historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
         historyQuotesSPEditor = historyQuotesSP.edit();
         int defaultNum = historyQuotesSP.getInt("currentQuote",0);
-        Log.d(TAG, "onCreate: "+defaultNum);
+//        Log.d(TAG, "onCreate: "+defaultNum);
 
         headlineTextView.setTextColor(appConfigSP.getInt("fontColor",Color.WHITE));
         headlineTextView.setTextSize(appConfigSP.getInt("字体大小:",20));
@@ -290,7 +289,7 @@ public class ScrollingActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 textView.setText("字体大小:" + (i+1));
-                Log.d("字体大小", ": "+ (i+1));
+//                Log.d("字体大小", ": "+ (i+1));
             }
 
             @Override
@@ -435,7 +434,7 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean isCheck) {
                 if (compoundButton.isChecked()) {
                     if (compoundButton.getText().equals("随机")) {
-                        Log.d("TAG", "onCheckedChanged: " + compoundButton.getText());
+//                        Log.d("TAG", "onCheckedChanged: " + compoundButton.getText());
                         abCheckbox.setChecked(false);
                         cCheckbox.setChecked(false);
                         dCheckbox.setChecked(false);
@@ -445,7 +444,7 @@ public class ScrollingActivity extends AppCompatActivity {
                     }
                     else{
                         randomCheckbox.setChecked(false);
-                        Log.d("TAG", "onCheckedChanged: "+compoundButton.getText());
+//                        Log.d("TAG", "onCheckedChanged: "+compoundButton.getText());
                     }
                  }
                 appConfigSPEditor.putBoolean(compoundButton.getText().toString(),isCheck);
@@ -488,7 +487,7 @@ public class ScrollingActivity extends AppCompatActivity {
 //            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }else
-            Toast.makeText(this,"你没有安装「酷安」app,请先安装",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"你还没有安装「酷安」app,请先安装",Toast.LENGTH_SHORT).show();
     }
 
 
@@ -511,7 +510,7 @@ public class ScrollingActivity extends AppCompatActivity {
 //            Log.d(TAG, "Job scheduling failed");
 //        }
 
-        Log.d(TAG, "onDestroy: ");
+//        Log.d(TAG, "onDestroy: ");
     }
 
     private void dayOrNightMode(){
@@ -538,8 +537,8 @@ public class ScrollingActivity extends AppCompatActivity {
                 headlineTextView.setText(intent.getStringExtra("quote"));
 
                 updateHistoryQuotes();
-                Log.d("广播", intent.getAction());
-                Toast.makeText(context, "已更新", Toast.LENGTH_SHORT).show();
+//                Log.d("广播", intent.getAction());
+//                Toast.makeText(context, "已更新", Toast.LENGTH_SHORT).show();
             }
         }
     }
