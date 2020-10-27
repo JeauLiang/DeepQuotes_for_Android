@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -481,13 +482,24 @@ public class ScrollingActivity extends AppCompatActivity {
 
 
     public void feedBack(View view){
-        Intent intent = getPackageManager().getLaunchIntentForPackage("com.coolapk.market");
-        if (intent != null) {
-//            intent.putExtra("type", "110");
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        Intent intent = getPackageManager().getLaunchIntentForPackage("com.coolapk.market");
+//        if (intent != null) {
+//            startActivity(intent);
+//        }else
+//            Toast.makeText(this,"你还没有安装「酷安」app,请先安装",Toast.LENGTH_SHORT).show();
+        String[] mailAddress = new String[]{"apps.liang@outlook.com"};
+
+        composeEmail(mailAddress,"「相顾无言」问题反馈");
+    }
+
+    public void composeEmail(String[] addresses, String subject) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:"));
+        intent.putExtra(Intent.EXTRA_EMAIL, addresses);
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
-        }else
-            Toast.makeText(this,"你还没有安装「酷安」app,请先安装",Toast.LENGTH_SHORT).show();
+        }
     }
 
 
