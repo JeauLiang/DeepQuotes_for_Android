@@ -487,7 +487,7 @@ public class ScrollingActivity extends AppCompatActivity {
 //            startActivity(intent);
 //        }else
 //            Toast.makeText(this,"你还没有安装「酷安」app,请先安装",Toast.LENGTH_SHORT).show();
-        String[] mailAddress = new String[]{"apps.liang@outlook.com"};
+        String[] mailAddress = new String[]{"developer.liang@outlook.com"};
 
         composeEmail(mailAddress,"「相顾无言」问题反馈");
     }
