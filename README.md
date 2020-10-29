@@ -5,3 +5,17 @@
 主打毒鸡汤，此鸡汤专治各种矫情、萎靡不振、纠结虚无症，每日至少服用三次，三天一疗程，疏肝理气，神清气爽
 
 新手上路，车子可能不稳，有bug尽管提，我再慢慢修
+
+<br>
+<br>
+
+## 问题反馈
+在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流
+
+* 邮件(developer.liang@outlook.com)
+
+<br>
+<br>
+
+## 预览图
+![image](https://github.com/yiliqiaolezi/DeepQuotes_for_Android/blob/master/previewImage/%E9%A2%84%E8%A7%88%E5%9B%BE.png)
