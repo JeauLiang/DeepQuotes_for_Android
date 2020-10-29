@@ -18,4 +18,4 @@
 <br>
 
 ## 预览图
-![image](https://github.com/yiliqiaolezi/DeepQuotes_for_Android/blob/master/previewImage/%E9%A2%84%E8%A7%88%E5%9B%BE.png)
+![image](https://github.com/meetleong/DeepQuotes_for_Android/blob/master/previewImage/%E9%A2%84%E8%A7%88%E5%9B%BE.png)
