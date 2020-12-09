@@ -1,142 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+<androidx.core.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ScrollingActivity"
-    android:background="@color/background_color"
-    tools:showIn="@layout/activity_scrolling">
+    android:background="@color/background_color">
 
-    <LinearLayout
-        android:orientation="vertical"
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="35dp"
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            app:cardCornerRadius="4dp">
+            app:cardCornerRadius="4dp"
+            app:cardBackgroundColor="@color/background_color">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/background_color"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
+
                 <TextView
+                    android:id="@+id/title_textView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:text="功能设置"
                     android:fontFamily="serif"
+                    android:text="功能设置"
                     android:textColor="@color/colorAccent"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toTopOf="@+id/update_now"
+                    app:layout_constraintStart_toStartOf="@+id/update_now"
+                    app:layout_constraintTop_toTopOf="parent" />
+
                 <TextView
                     android:id="@+id/update_now"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:fontFamily="serif"
                     android:padding="15dp"
                     android:text="立即刷新"
-                    android:fontFamily="serif"
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"/>
+                    app:layout_constraintBottom_toTopOf="@+id/refresh_time_textview"
+                    app:layout_constraintEnd_toEndOf="@+id/refresh_time_textview"
+                    app:layout_constraintStart_toStartOf="@+id/refresh_time_textview"
+                    app:layout_constraintTop_toBottomOf="@+id/title_textView" />
+
                 <TextView
                     android:id="@+id/refresh_time_textview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:fontFamily="serif"
+                    android:onClick="selectRefreshTime"
                     android:padding="15dp"
                     android:text="自动刷新时间"
-                    android:fontFamily="serif"
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
+                    app:layout_constraintBottom_toTopOf="@+id/is_enable_hitokoto"
+                    app:layout_constraintEnd_toEndOf="@+id/is_enable_hitokoto"
+                    app:layout_constraintStart_toStartOf="@+id/textView2"
+                    app:layout_constraintTop_toBottomOf="@+id/update_now" />
+
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginLeft="15dp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
-                    android:onClick="selectRefreshTime"/>
+                    android:fontFamily="serif"
+                    android:padding="15dp"
+                    android:text="是否启用一言"
+                    android:textColor="@color/color_txt"
+                    android:textSize="15sp"
+                    app:layout_constraintEnd_toStartOf="@+id/is_enable_hitokoto"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/refresh_time_textview" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="5"
-                        android:padding="15dp"
-                        android:text="是否启用一言"
-                        android:fontFamily="serif"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:textColor="@color/color_txt"
-                        android:textSize="15sp"
-                        android:clickable="true"/>
-                    <Switch
-                        android:id="@+id/is_enable_hitokoto"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:padding="10dp"
-                        android:layout_weight="1"/>
-                </LinearLayout>
+                <Switch
+                    android:id="@+id/is_enable_hitokoto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    app:layout_constraintBottom_toTopOf="@+id/hitokoto_type"
+                    app:layout_constraintLeft_toLeftOf="@id/textView2"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/refresh_time_textview" />
+
                 <TextView
                     android:id="@+id/hitokoto_type"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="5"
-                    android:padding="15dp"
-                    android:text="一言句子类型"
-                    android:fontFamily="serif"
-                    android:textColor="@color/color_txt"
-                    android:textSize="15sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
-                    android:onClick="selectHitokotoType"/>
-            </LinearLayout>
+                    android:fontFamily="serif"
+                    android:onClick="selectHitokotoType"
+                    android:padding="15dp"
+                    android:text="一言句子类型"
+                    android:textColor="@color/color_txt"
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/is_enable_hitokoto"
+                    app:layout_constraintStart_toStartOf="@+id/textView2"
+                    app:layout_constraintTop_toBottomOf="@+id/is_enable_hitokoto" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cardView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            app:cardCornerRadius="4dp">
+            android:layout_below="@id/cardView"
+            app:cardCornerRadius="4dp"
+            app:cardBackgroundColor="@color/background_color">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/background_color"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
                 <TextView
+                    android:id="@+id/effect_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:text="效果设置"
                     android:fontFamily="serif"
                     android:textColor="@color/colorAccent"
-                    android:textSize="15sp" />
-<!--                <TextView-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:layout_weight="5"-->
-<!--                    android:padding="15dp"-->
-<!--                    android:text="字体样式"-->
-<!--                    android:fontFamily="serif"-->
-<!--                    android:textColor="@color/color_txt"-->
-<!--                    android:textSize="15sp"-->
-<!--                    android:onClick="selectFontStyle"-->
-<!--                    android:background="?android:attr/selectableItemBackground"-->
-<!--                    android:clickable="true"/>-->
+                    android:textSize="15sp"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/font_color_tv"
+                    app:layout_constraintStart_toStartOf="parent"/>
                 <TextView
+                    android:id="@+id/font_color_tv"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="5"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:padding="15dp"
                     android:text="字体颜色"
                     android:fontFamily="serif"
@@ -144,88 +166,115 @@
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
-                    android:onClick="selectFontColor"/>
+                    android:onClick="selectFontColor"
+                    app:layout_constraintTop_toBottomOf="@id/effect_title"
+                    app:layout_constraintBottom_toTopOf="@id/font_size_textview"
+                    app:layout_constraintStart_toStartOf="@id/effect_title"/>
+
                 <TextView
                     android:id="@+id/font_size_textview"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="字体大小"
-                    android:fontFamily="serif"
-                    android:textSize="15sp"
-                    android:padding="15dp"
-                    android:textColor="@color/color_txt"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
-                    android:onClick="selectFontSize"/>
+                    android:fontFamily="serif"
+                    android:onClick="selectFontSize"
+                    android:padding="15dp"
+                    android:text="字体大小"
+                    android:textColor="@color/color_txt"
+                    android:textSize="15sp"
+                    app:layout_constraintTop_toBottomOf="@+id/font_color_tv"/>
 
-            </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cardView3"
+            android:layout_below="@id/cardView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            app:cardCornerRadius="4dp">
+            app:cardCornerRadius="4dp"
 
-            <LinearLayout
+            app:cardBackgroundColor="@color/background_color">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/background_color"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:layout_editor_absoluteY="1dp">
+
                 <TextView
+                    android:id="@+id/other_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:text="其它"
                     android:fontFamily="serif"
+                    android:text="其它"
                     android:textColor="@color/colorAccent"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    app:layout_constraintTop_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/history_textview"/>
+
                 <TextView
                     android:id="@+id/history_textview"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:padding="15dp"
-                    android:text="历史记录"
-                    android:fontFamily="serif"
-                    android:textColor="@color/color_txt"
-                    android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
-                    android:onClick="showHistory"/>
+                    android:fontFamily="serif"
+                    android:onClick="showHistory"
+                    android:padding="15dp"
+                    android:text="历史记录"
+                    android:textColor="@color/color_txt"
+                    android:textSize="15sp"
+                    app:layout_constraintTop_toBottomOf="@+id/other_title"
+                    app:layout_constraintBottom_toTopOf="@id/feedback"/>
+
                 <TextView
                     android:id="@+id/feedback"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:padding="15dp"
-                    android:text="邮件反馈"
-                    android:fontFamily="serif"
-                    android:textColor="@color/color_txt"
-                    android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
-                    android:onClick="feedBack"/>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:padding="15dp"
-                    android:text="版本：子鼠v1.0"
                     android:fontFamily="serif"
+                    android:onClick="feedBack"
+                    android:padding="15dp"
+                    android:text="邮件反馈"
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
+                    app:layout_constraintTop_toBottomOf="@+id/history_textview"
+                    app:layout_constraintBottom_toTopOf="@id/version_tv"/>
+
+                <TextView
+                    android:id="@+id/version_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
                     android:background="?android:attr/selectableItemBackground"
-                    android:clickable="true"/>
-            </LinearLayout>
+                    android:clickable="true"
+                    android:fontFamily="serif"
+                    android:padding="15dp"
+                    android:text="版本：子鼠v1.0"
+                    android:textColor="@color/color_txt"
+                    android:textSize="15sp"
+
+                    app:layout_constraintTop_toBottomOf="@+id/feedback"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
 
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
 
 </androidx.core.widget.NestedScrollView>
+
+</merge>
