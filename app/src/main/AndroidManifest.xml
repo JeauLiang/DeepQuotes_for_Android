@@ -16,12 +16,12 @@
         android:usesCleartextTraffic="true">
 
         <service
-            android:name=".TimerService"
+            android:name=".services.TimerService"
             android:enabled="true"
             android:exported="true"/>
 
         <service
-            android:name=".UpdateService"
+            android:name=".services.UpdateService"
             android:enabled="true"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE"/>

@@ -1,6 +1,5 @@
 package com.deepquotes;
 
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -11,30 +10,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.deepquotes.services.UpdateService;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Set;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
-
-import static android.appwidget.AppWidgetManager.ACTION_APPWIDGET_DELETED;
-import static android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE;
-import static android.appwidget.AppWidgetManager.getInstance;
 import static android.content.Context.MODE_PRIVATE;
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
@@ -99,7 +79,7 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
         int duration = appConfigSP.getInt("当前刷新间隔(分钟):",15);
 
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        ComponentName componentName = new ComponentName(context,UpdateService.class);
+        ComponentName componentName = new ComponentName(context, UpdateService.class);
         JobInfo jobInfo = new JobInfo.Builder(12345,componentName)
                 .setPeriodic(duration*60*1000)
                 .setPersisted(true)

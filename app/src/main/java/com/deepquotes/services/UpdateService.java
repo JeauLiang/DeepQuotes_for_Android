@@ -1,4 +1,4 @@
-package com.deepquotes;
+package com.deepquotes.services;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -14,6 +14,10 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
+
+import com.deepquotes.Quotes;
+import com.deepquotes.QuotesWidgetProvider;
+import com.deepquotes.R;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -106,7 +110,7 @@ public class UpdateService extends JobService {
 //                        Log.d("广播","already send broadcast");
                         sendBroadcast(updatetext);
 
-                        RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
+                        RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(), R.layout.quotes_layout);
                         remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
                         remoteViews.setTextColor(R.id.quotes_textview, appConfigSP.getInt("fontColor", Color.WHITE));
                         remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));

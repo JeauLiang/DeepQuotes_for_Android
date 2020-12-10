@@ -1,6 +1,5 @@
 package com.deepquotes;
 
-import android.app.AlarmManager;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.appwidget.AppWidgetManager;
@@ -14,18 +13,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.deepquotes.services.TimerService;
+import com.deepquotes.services.UpdateService;
+import com.deepquotes.utils.DBManager;
+import com.deepquotes.utils.QuotesSQLHelper;
 import com.dingmouren.colorpicker.ColorPickerDialog;
 import com.dingmouren.colorpicker.OnColorPickerListener;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -34,15 +36,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -52,15 +48,15 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
 public class ScrollingActivity extends AppCompatActivity {
+
+    private QuotesSQLHelper mSQLHelper;
+    private SQLiteDatabase mDataBase;
 
     private SharedPreferences appConfigSP;
     private SharedPreferences.Editor appConfigSPEditor;
@@ -81,14 +77,17 @@ public class ScrollingActivity extends AppCompatActivity {
 
     private ClipboardManager clipboardManager;
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final static String TAG = "ScrollingActivity";
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
+
+        mSQLHelper = DBManager.getInstance(this);
+        mDataBase = mSQLHelper.getReadableDatabase();
 
         appConfigSP = getSharedPreferences("appConfig",MODE_PRIVATE);
         appConfigSPEditor = appConfigSP.edit();
@@ -131,7 +130,7 @@ public class ScrollingActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                Log.d("刷新","u click updata");
 
-                Intent intent = new Intent(ScrollingActivity.this,TimerService.class);
+                Intent intent = new Intent(ScrollingActivity.this, TimerService.class);
                 startService(intent);
             }
         });
@@ -368,7 +367,7 @@ public class ScrollingActivity extends AppCompatActivity {
                 JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
                 jobScheduler.cancel(12345);
 
-                ComponentName componentName = new ComponentName(ScrollingActivity.this,UpdateService.class);
+                ComponentName componentName = new ComponentName(ScrollingActivity.this, UpdateService.class);
                 JobInfo jobInfo = new JobInfo.Builder(12345,componentName)
                         .setPeriodic(newRefreshTime*60*1000)
                         .build();
