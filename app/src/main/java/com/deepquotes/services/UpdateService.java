@@ -6,11 +6,11 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
@@ -18,6 +18,9 @@ import androidx.annotation.NonNull;
 import com.deepquotes.Quotes;
 import com.deepquotes.QuotesWidgetProvider;
 import com.deepquotes.R;
+import com.deepquotes.utils.Constant;
+import com.deepquotes.utils.DBManager;
+import com.deepquotes.utils.QuotesSQLHelper;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -39,13 +42,20 @@ import static android.util.TypedValue.COMPLEX_UNIT_SP;
 import static com.deepquotes.Quotes.UPDATE_TEXT;
 
 public class UpdateService extends JobService {
+
+    /**
+     * activity销毁后的后台刷新服务，依赖于JobScheduler任务调度
+     */
     
     private final static String TAG = "JOBSERVICE";
     private boolean isFinish = false;
 
     private SharedPreferences appConfigSP;
-    private SharedPreferences historyQuotesSP;
-    private SharedPreferences.Editor historyQuotesSPEditor;
+
+    private QuotesSQLHelper mQuotesSQLHelper;
+    private SQLiteDatabase mDatabase;
+
+    private final static String UNKOWN_AUTHOR = "来源于网络";
 
 
 
@@ -53,9 +63,10 @@ public class UpdateService extends JobService {
     public void onCreate() {
         super.onCreate();
 
+        mQuotesSQLHelper = DBManager.getInstance(this);
+        mDatabase = mQuotesSQLHelper.getReadableDatabase();
+
         appConfigSP = getSharedPreferences("appConfig",MODE_PRIVATE);
-        historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
-        historyQuotesSPEditor = historyQuotesSP.edit();
     }
 
     @Override
@@ -91,25 +102,18 @@ public class UpdateService extends JobService {
                     if (msg.obj != null) {
 //                        String textMessage = msg.obj.toString();
                         Quotes quotes = (Quotes) msg.obj;
-                        String textMessage = quotes.getQuote();
+                        String textMessage = quotes.getText();
+                        String author = quotes.getAuthor();
+                        //向数据库插入数据
+                        insertDatabase(textMessage,author);
 
-                        //                        headlineTextView.setText(textMessage);
-                        int currentQuote = historyQuotesSP.getInt("currentQuote",0);
-                        if (currentQuote > 99) currentQuote=0;
-
-                        historyQuotesSPEditor.putString(String.valueOf(currentQuote),textMessage);
-//                        Log.d("currentQuote",String.valueOf(currentQuote));
-                        int nextQuote = currentQuote+1;
-                        historyQuotesSPEditor.putInt("currentQuote",nextQuote);
-                        historyQuotesSPEditor.apply();
-//                        Log.d("nextQuote",String.valueOf(nextQuote));
-
-
+                        //发送更新成功广播,通知Activity刷新界面（若Activity存活）
                         Intent updatetext = new Intent("com.deepquotes.broadcast.updateTextView");
                         updatetext.putExtra("quote",textMessage);
 //                        Log.d("广播","already send broadcast");
                         sendBroadcast(updatetext);
 
+                        //更新widget
                         RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(), R.layout.quotes_layout);
                         remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
                         remoteViews.setTextColor(R.id.quotes_textview, appConfigSP.getInt("fontColor", Color.WHITE));
@@ -140,12 +144,19 @@ public class UpdateService extends JobService {
         return true;
     }
 
+    private void insertDatabase(String text,String author){
+        String insertSQL = "insert into "+
+                Constant.TABLE_NAME + "("+Constant._TEXT + "," + Constant._AUTHOR + ")"+
+                " values('" + text + "','" + author + "')";
+        mDatabase.execSQL(insertSQL);
+    }
 
 
     @Override
     public void onDestroy() {
 //        Log.i(TAG, "onDestroy: ");
         super.onDestroy();
+        mDatabase.close();
     }
 
     private void getDeepQuotes(int seed, String postParam, final JobParameters parameters){
@@ -177,7 +188,7 @@ public class UpdateService extends JobService {
 
                             Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
-                            Quotes quotes = new Quotes(responseStr,parameters);
+                            Quotes quotes = new Quotes(responseStr,UNKOWN_AUTHOR,parameters);
                             message.obj = quotes;
 
                             handler.sendMessage(message);
@@ -206,7 +217,7 @@ public class UpdateService extends JobService {
 
                             Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
-                            Quotes quotes = new Quotes(responseStr,parameters);
+                            Quotes quotes = new Quotes(responseStr,UNKOWN_AUTHOR,parameters);
                             message.obj = quotes;
                             handler.sendMessage(message);
                         } catch (JSONException e) {
@@ -228,11 +239,12 @@ public class UpdateService extends JobService {
                             String responseStr = response.body().string();
                             JSONObject responseJSON = new JSONObject(responseStr);
                             responseStr = responseJSON.getString("hitokoto");
+                            String author = responseJSON.getString("from");
 //                            Log.d("hikotoko",responseStr);
 
                             Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
-                            Quotes quotes = new Quotes(responseStr,parameters);
+                            Quotes quotes = new Quotes(responseStr,author,parameters);
                             message.obj = quotes;
                             handler.sendMessage(message);
                         } catch (JSONException e) {
@@ -260,7 +272,7 @@ public class UpdateService extends JobService {
 
                     Message message = handler.obtainMessage();
                     message.what = UPDATE_TEXT;
-                    Quotes quotes = new Quotes(data,parameters);
+                    Quotes quotes = new Quotes(data,UNKOWN_AUTHOR,parameters);
                     message.obj = quotes;
                     handler.sendMessage(message);
 

@@ -9,37 +9,37 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 
 import com.deepquotes.services.UpdateService;
+import com.deepquotes.utils.Constant;
+import com.deepquotes.utils.DBManager;
+import com.deepquotes.utils.QuotesSQLHelper;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
 public class QuotesWidgetProvider extends AppWidgetProvider {
 
-    private SharedPreferences historyQuotesSP ;
     private SharedPreferences appConfigSP;
 
-
-
+    private QuotesSQLHelper mQuotesSQLHelper;
+    private SQLiteDatabase mDatabase;
 
     //窗口小部件更新时时调用
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
-//        Log.d("QuotesWidgetProvider", "onUpdate: "+context);
+        mQuotesSQLHelper = DBManager.getInstance(context);
+        mDatabase = mQuotesSQLHelper.getReadableDatabase();
 
-
-        if (historyQuotesSP==null)
-            historyQuotesSP = context.getSharedPreferences("historyQuotes",MODE_PRIVATE);
         if (appConfigSP==null)
             appConfigSP = context.getSharedPreferences("appConfig",MODE_PRIVATE);
-
-
 
         final int N = appWidgetIds.length;
         for (int i=0; i<N; i++){
@@ -47,10 +47,26 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
 
             RemoteViews views = new RemoteViews(context.getPackageName(),R.layout.quotes_layout);
             views.setTextColor(R.id.quotes_textview,Color.WHITE);
-            int current = historyQuotesSP.getInt("currentQuote",0);
-            String quote = historyQuotesSP.getString(String.valueOf(current),"欲买桂花同载酒，终不似，少年游");
+
+            String quote = null;
+            try {
+                int maxId = getMaxDbId(mDatabase);
+                String queryMaxIdItem = "select * from " + Constant.TABLE_NAME + " where " + Constant._ID + "=" + maxId;
+                Cursor cursor = mDatabase.rawQuery(queryMaxIdItem,null);
+                cursor.moveToFirst();
+                quote = cursor.getString(cursor.getColumnIndex(Constant._TEXT));
+                cursor.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //更新Widgets
+            if (quote==null && quote.equals(""))
+                quote = "欲买桂花同载酒，终不似，少年游";
+
             views.setTextViewText(R.id.quotes_textview,quote);
             views.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));
+
             Intent openIntent = new Intent(context, ScrollingActivity.class);
 //            openIntent.putExtra("quote",quote);
             PendingIntent openPendingIntent = PendingIntent.getActivity(context, 0, openIntent, 0);
@@ -62,10 +78,21 @@ public class QuotesWidgetProvider extends AppWidgetProvider {
 
     }
 
+    private int getMaxDbId(SQLiteDatabase Database){   //获取表中最后一条数据的id
+        String querySQL = "select max(" + Constant._ID + ") from " + Constant.TABLE_NAME;
+        Cursor cursor = Database.rawQuery(querySQL,null);
+        cursor.moveToFirst();
+        int maxId = cursor.getInt(0);
+//        Log.i(TAG, "getMaxDbId:cursor ->"+maxId);
+        cursor.close();
+        return maxId;
+    }
+
     //窗口小部件被删除时调用
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         super.onDeleted(context, appWidgetIds);
+        mDatabase.close();
 //        Toast.makeText(context,"你删除了控件",Toast.LENGTH_SHORT).show();
     }
 

@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -22,6 +23,7 @@ import android.os.Bundle;
 
 import com.deepquotes.services.TimerService;
 import com.deepquotes.services.UpdateService;
+import com.deepquotes.utils.Constant;
 import com.deepquotes.utils.DBManager;
 import com.deepquotes.utils.QuotesSQLHelper;
 import com.dingmouren.colorpicker.ColorPickerDialog;
@@ -49,19 +51,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
 
-public class ScrollingActivity extends AppCompatActivity {
+public class ScrollingActivity extends AppCompatActivity{
 
     private QuotesSQLHelper mSQLHelper;
     private SQLiteDatabase mDataBase;
 
     private SharedPreferences appConfigSP;
     private SharedPreferences.Editor appConfigSPEditor;
-    private SharedPreferences historyQuotesSP;
-    private SharedPreferences.Editor historyQuotesSPEditor;
 
     private DrawerLayout mDrawerLayout;
     private TextView headlineTextView;
@@ -79,6 +80,11 @@ public class ScrollingActivity extends AppCompatActivity {
 
     private final static String TAG = "ScrollingActivity";
 
+    private final static String DEFAULT_DEEPQUOTE = "与买桂花同载酒，终不似，少年游";
+    //设置最大历史记录条目的保存量
+    private static final int MAX_HISTORY_ITMES = 100;
+
+    private List<String> myList = new LinkedList<>();
 
 
     @Override
@@ -88,6 +94,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
         mSQLHelper = DBManager.getInstance(this);
         mDataBase = mSQLHelper.getReadableDatabase();
+
 
         appConfigSP = getSharedPreferences("appConfig",MODE_PRIVATE);
         appConfigSPEditor = appConfigSP.edit();
@@ -100,44 +107,21 @@ public class ScrollingActivity extends AppCompatActivity {
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
-        final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto);
+        final Switch isEnableHitokoto = findViewById(R.id.is_enable_hitokoto_sw);
         final TextView hitokotoType = findViewById(R.id.hitokoto_type);
         headlineTextView = findViewById(R.id.headline_text_view);
-        TextView updateNowTextView = findViewById(R.id.update_now);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 
-
         clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-
-
-
-//        TextView widgetTextView = findViewById(R.id.quotes_textview);
 
         remoteViews = new RemoteViews(getApplicationContext().getPackageName(),R.layout.quotes_layout);
         appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
         componentName = new ComponentName(getApplicationContext(), QuotesWidgetProvider.class);
 
-
         dayOrNightMode();
-
-
-
-        updateNowTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                Log.d("刷新","u click updata");
-
-                Intent intent = new Intent(ScrollingActivity.this, TimerService.class);
-                startService(intent);
-            }
-        });
-
-
-
-
 
         final FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -224,14 +208,26 @@ public class ScrollingActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
-        historyQuotesSPEditor = historyQuotesSP.edit();
-        int defaultNum = historyQuotesSP.getInt("currentQuote",0);
-//        Log.d(TAG, "onCreate: "+defaultNum);
+        //获取最新条目的信息
+        String text = null;
+        try {
+            int maxId = getMaxDbId();
+            String queryMaxIdItem = "select * from " + Constant.TABLE_NAME + " where " + Constant._ID + "=" + maxId;
+            Cursor cursor = mDataBase.rawQuery(queryMaxIdItem,null);
+            cursor.moveToFirst();
+            text = cursor.getString(cursor.getColumnIndex(Constant._TEXT));
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        //更新主界面
+        if (text!=null && !text.equals(""))
+            headlineTextView.setText(text);
+        else
+            headlineTextView.setText(DEFAULT_DEEPQUOTE);
         headlineTextView.setTextColor(appConfigSP.getInt("fontColor",Color.WHITE));
         headlineTextView.setTextSize(appConfigSP.getInt("字体大小:",20));
-        headlineTextView.setText(historyQuotesSP.getString(String.valueOf(defaultNum-1),"欲买桂花同载酒，终不似，少年游"));
 
 
         updateHistoryQuotes();
@@ -239,16 +235,50 @@ public class ScrollingActivity extends AppCompatActivity {
     }
 
 
-    private void updateHistoryQuotes() {
-        List<String> myList = new ArrayList<>(100);
-        int maxNum;
-        String maxNumQuote = historyQuotesSP.getString("100", "null");
-        if (maxNumQuote.equals("null"))
-            maxNum = historyQuotesSP.getInt("currentQuote", 0);
-        else maxNum = 100;
-        for (int inWchichQuote = 0; inWchichQuote < maxNum; inWchichQuote++)
-            myList.add(historyQuotesSP.getString(String.valueOf(inWchichQuote), "null"));
+    public void onTextViewClick(View view){
+        switch (view.getId()){
+            case R.id.update_now_tv://立即刷新
+                Intent intent = new Intent(ScrollingActivity.this, TimerService.class);
+                startService(intent);
+                break;
+            case R.id.refresh_time_tv://设置自动刷新间隔
+                selectRefreshTime();
+                break;
+            case R.id.hitokoto_type://选择一言句子类型
+                selectHitokotoType();
+                break;
+            case R.id.font_color_tv://设置字体颜色
+                selectFontColor();
+                break;
+            case R.id.font_size_tv://设置字体大小
+                selectFontSize();
+                break;
+            case R.id.history_tv://打开历史记录
+                showHistory();
+                break;
+            case R.id.feedback_tv://打开邮件反馈
+                feedBack();
+                break;
+        }
+    }
 
+
+    private void updateHistoryQuotes() {    //只展示最新的100条数据
+        myList.clear();
+
+        int maxNum = getMaxDbId();
+
+        //获取最新的 MAX_HISTORY_ITMES 条数据
+        String querySQL = "select * from " + Constant.TABLE_NAME + " where " + Constant._ID + ">" +(maxNum-MAX_HISTORY_ITMES);
+        Cursor cursor = mDataBase.rawQuery(querySQL,null);
+        if (cursor.moveToFirst()){
+            do{
+                myList.add(cursor.getString(cursor.getColumnIndex(Constant._TEXT)));
+            }while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        //设置RecyclerView参数
         final RecyclerView recyclerView = findViewById(R.id.recycler_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -256,20 +286,18 @@ public class ScrollingActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-
-    public void showHistory(View view){
+    public void showHistory(){
         mDrawerLayout.openDrawer(Gravity.RIGHT);
     }
 
-    public void selectFontColor(View view){
+    public void selectFontColor(){
        mColorPickerDialog.show();
        Window window = mColorPickerDialog.getDialog().getWindow();
        window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
 
     }
 
-
-    public void selectFontSize(View view){
+    public void selectFontSize(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
         builder.setView(layoutView);
@@ -327,7 +355,7 @@ public class ScrollingActivity extends AppCompatActivity {
         window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
     }
 
-    public void selectRefreshTime(View view){
+    public void selectRefreshTime(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View layoutView = LayoutInflater.from(this).inflate(R.layout.seekbar_select_layout,null);
         builder.setView(layoutView);
@@ -392,10 +420,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
     }
 
-
-
-
-    public void selectHitokotoType(View v){
+    public void selectHitokotoType(){
 //        ArrayList selection = new ArrayList();
 //        String[] types = {"随机","动画、漫画","游戏","文学","影视","诗词","网易云"};
         AlertDialog.Builder TypeBuilder = new AlertDialog.Builder(this);
@@ -479,8 +504,7 @@ public class ScrollingActivity extends AppCompatActivity {
         window.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.background_color)));
     }
 
-
-    public void feedBack(View view){
+    public void feedBack(){
 //        Intent intent = getPackageManager().getLaunchIntentForPackage("com.coolapk.market");
 //        if (intent != null) {
 //            startActivity(intent);
@@ -501,11 +525,21 @@ public class ScrollingActivity extends AppCompatActivity {
         }
     }
 
+    private int getMaxDbId(){   //获取表中最后一条数据的id
+        String querySQL = "select max(" + Constant._ID + ") from " + Constant.TABLE_NAME;
+        Cursor cursor = mDataBase.rawQuery(querySQL,null);
+        cursor.moveToFirst();
+        int maxId = cursor.getInt(0);
+//        Log.i(TAG, "getMaxDbId:cursor ->"+maxId);
+        cursor.close();
+        return maxId;
+    }
 
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mDataBase.close();
         unregisterReceiver(broadcast);
 
 //        JobScheduler jobScheduler = (JobScheduler)this.getSystemService(Context.JOB_SCHEDULER_SERVICE);
@@ -538,6 +572,7 @@ public class ScrollingActivity extends AppCompatActivity {
             default:break;
         }
     }
+
 
 
     public class myBroadcast extends BroadcastReceiver{

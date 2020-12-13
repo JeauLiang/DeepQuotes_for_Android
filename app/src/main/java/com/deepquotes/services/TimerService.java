@@ -5,6 +5,8 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,8 +17,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.deepquotes.Quotes;
 import com.deepquotes.QuotesWidgetProvider;
 import com.deepquotes.R;
+import com.deepquotes.utils.Constant;
+import com.deepquotes.utils.DBManager;
+import com.deepquotes.utils.QuotesSQLHelper;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -42,12 +48,19 @@ import static com.deepquotes.Quotes.UPDATE_TEXT;
 
 public class TimerService extends Service {
 
+    /**
+     * activity存活时的刷新服务，
+     * 通过RemoteView刷新Widgets
+     * 通过Broadcast通知Activity刷新主界面
+     */
+
     private SharedPreferences appConfigSP;
-    private SharedPreferences historyQuotesSP;
-    private SharedPreferences.Editor historyQuotesSPEditor;
 
 
+    private QuotesSQLHelper mQuotesSQLHelper;
+    private SQLiteDatabase mDatabase;
 
+    private final static String UNKOWN_AUTHOR = "来源于网络";
 
 
     @Override
@@ -59,9 +72,10 @@ public class TimerService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        mQuotesSQLHelper = DBManager.getInstance(this);
+        mDatabase = mQuotesSQLHelper.getReadableDatabase();
+
         appConfigSP = getSharedPreferences("appConfig",MODE_PRIVATE);
-        historyQuotesSP = getSharedPreferences("historyQuotes",MODE_PRIVATE);
-        historyQuotesSPEditor = historyQuotesSP.edit();
     }
 
     @Override
@@ -98,27 +112,22 @@ public class TimerService extends Service {
             switch (msg.what){
                 case UPDATE_TEXT:
                     if (msg.obj != null) {
-                        String textMessage = msg.obj.toString();
 
-//                        headlineTextView.setText(textMessage);
-                        int currentQuote = historyQuotesSP.getInt("currentQuote",0);
-                        if (currentQuote > 99) currentQuote=0;
+                        Quotes quotes = (Quotes) msg.obj;
+                        String text = quotes.getText();
+                        String author = quotes.getAuthor();
+                        //向数据库插入数据
+                        insertDatabase(text,author);
 
-                        historyQuotesSPEditor.putString(String.valueOf(currentQuote),textMessage);
-//                        Log.d("currentQuote",String.valueOf(currentQuote));
-                        int nextQuote = currentQuote+1;
-                        historyQuotesSPEditor.putInt("currentQuote",nextQuote);
-                        historyQuotesSPEditor.apply();
-//                        Log.d("nextQuote",String.valueOf(nextQuote));
-
-
+                        //发送更新成功广播,通知Activity刷新界面（若Activity存活）
                         Intent updatetext = new Intent("com.deepquotes.broadcast.updateTextView");
-                        updatetext.putExtra("quote",textMessage);
+                        updatetext.putExtra("quote",text);
 //                        Log.d("广播","already send broadcast");
                         sendBroadcast(updatetext);
 
+                        //更新widget
                         RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(), R.layout.quotes_layout);
-                        remoteViews.setTextViewText(R.id.quotes_textview, textMessage);
+                        remoteViews.setTextViewText(R.id.quotes_textview, text);
                         remoteViews.setTextColor(R.id.quotes_textview, appConfigSP.getInt("fontColor", Color.WHITE));
                         remoteViews.setTextViewTextSize(R.id.quotes_textview, COMPLEX_UNIT_SP, appConfigSP.getInt("字体大小:", 20));
                         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
@@ -138,6 +147,15 @@ public class TimerService extends Service {
 
     public void onDestroy() {
         super.onDestroy();
+        mDatabase.close();
+    }
+
+
+    private void insertDatabase(String text,String author){
+        String insertSQL = "insert into "+
+                Constant.TABLE_NAME + "("+Constant._TEXT + "," + Constant._AUTHOR + ")"+
+                " values('" + text + "','" + author + "')";
+        mDatabase.execSQL(insertSQL);
     }
 
     private void getDeepQuotes(int seed,String postParam){
@@ -157,14 +175,19 @@ public class TimerService extends Service {
                         try {
                             String responseStr = response.body().string();
                             JSONObject responseJSON = new JSONObject(responseStr);
-                            JSONObject quoteData = responseJSON.getJSONObject("data");
-                            responseStr = quoteData.getString("title");
+
+                            if (responseJSON.getInt("code") == 429)
+                                responseStr = "每日调用次数已达上限";
+                            else {
+                                JSONObject quoteData = responseJSON.getJSONObject("data");
+                                responseStr = quoteData.getString("title");
+                            }
 
 //                            Log.d("DeepQuote2",responseStr);
 
-                            Message message = new Message();
+                            Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
-                            message.obj = responseStr;
+                            message.obj = new Quotes(responseStr,UNKOWN_AUTHOR);
                             handler.sendMessage(message);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -188,9 +211,9 @@ public class TimerService extends Service {
 
 //                            Log.d("DeepQuote3",responseStr);
 
-                            Message message = new Message();
+                            Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
-                            message.obj = responseStr;
+                            message.obj = new Quotes(responseStr,UNKOWN_AUTHOR);
                             handler.sendMessage(message);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -211,11 +234,12 @@ public class TimerService extends Service {
                             String responseStr = response.body().string();
                             JSONObject responseJSON = new JSONObject(responseStr);
                             responseStr = responseJSON.getString("hitokoto");
+                            String author = responseJSON.getString("from");
 //                            Log.d("hikotoko",responseStr);
 
-                            Message message = new Message();
+                            Message message = handler.obtainMessage();
                             message.what = UPDATE_TEXT;
-                            message.obj = responseStr;
+                            message.obj = new Quotes(responseStr,author);
                             handler.sendMessage(message);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -240,9 +264,9 @@ public class TimerService extends Service {
                         data = element.get(i).select("span").text();
                     }
 
-                    Message message = new Message();
+                    Message message = handler.obtainMessage();
                     message.what = UPDATE_TEXT;
-                    message.obj = data;
+                    message.obj = new Quotes(data,UNKOWN_AUTHOR);
                     handler.sendMessage(message);
 
 //                    Log.d("DeepQuote1", data);

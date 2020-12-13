@@ -42,46 +42,47 @@
                     android:text="功能设置"
                     android:textColor="@color/colorAccent"
                     android:textSize="15sp"
-                    app:layout_constraintBottom_toTopOf="@+id/update_now"
-                    app:layout_constraintStart_toStartOf="@+id/update_now"
+                    app:layout_constraintBottom_toTopOf="@+id/update_now_tv"
+                    app:layout_constraintStart_toStartOf="@+id/update_now_tv"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/update_now"
+                    android:id="@+id/update_now_tv"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
+                    android:onClick="onTextViewClick"
                     android:fontFamily="serif"
                     android:padding="15dp"
                     android:text="立即刷新"
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
-                    app:layout_constraintBottom_toTopOf="@+id/refresh_time_textview"
-                    app:layout_constraintEnd_toEndOf="@+id/refresh_time_textview"
-                    app:layout_constraintStart_toStartOf="@+id/refresh_time_textview"
+                    app:layout_constraintBottom_toTopOf="@+id/refresh_time_tv"
+                    app:layout_constraintEnd_toEndOf="@+id/refresh_time_tv"
+                    app:layout_constraintStart_toStartOf="@+id/refresh_time_tv"
                     app:layout_constraintTop_toBottomOf="@+id/title_textView" />
 
                 <TextView
-                    android:id="@+id/refresh_time_textview"
+                    android:id="@+id/refresh_time_tv"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:fontFamily="serif"
-                    android:onClick="selectRefreshTime"
+                    android:onClick="onTextViewClick"
                     android:padding="15dp"
                     android:text="自动刷新时间"
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
-                    app:layout_constraintBottom_toTopOf="@+id/is_enable_hitokoto"
-                    app:layout_constraintEnd_toEndOf="@+id/is_enable_hitokoto"
-                    app:layout_constraintStart_toStartOf="@+id/textView2"
-                    app:layout_constraintTop_toBottomOf="@+id/update_now" />
+                    app:layout_constraintBottom_toTopOf="@+id/is_enable_hitokoto_sw"
+                    app:layout_constraintEnd_toEndOf="@+id/is_enable_hitokoto_sw"
+                    app:layout_constraintStart_toStartOf="@+id/is_enable_hitokoto_tv"
+                    app:layout_constraintTop_toBottomOf="@+id/update_now_tv" />
 
 
                 <TextView
-                    android:id="@+id/textView2"
+                    android:id="@+id/is_enable_hitokoto_tv"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
@@ -93,19 +94,19 @@
                     android:text="是否启用一言"
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
-                    app:layout_constraintEnd_toStartOf="@+id/is_enable_hitokoto"
+                    app:layout_constraintEnd_toStartOf="@+id/is_enable_hitokoto_sw"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/refresh_time_textview" />
+                    app:layout_constraintTop_toBottomOf="@+id/refresh_time_tv" />
 
                 <Switch
-                    android:id="@+id/is_enable_hitokoto"
+                    android:id="@+id/is_enable_hitokoto_sw"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
                     app:layout_constraintBottom_toTopOf="@+id/hitokoto_type"
-                    app:layout_constraintLeft_toLeftOf="@id/textView2"
+                    app:layout_constraintLeft_toLeftOf="@id/is_enable_hitokoto_tv"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/refresh_time_textview" />
+                    app:layout_constraintTop_toBottomOf="@+id/refresh_time_tv" />
 
                 <TextView
                     android:id="@+id/hitokoto_type"
@@ -114,15 +115,15 @@
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:fontFamily="serif"
-                    android:onClick="selectHitokotoType"
+                    android:onClick="onTextViewClick"
                     android:padding="15dp"
                     android:text="一言句子类型"
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/is_enable_hitokoto"
-                    app:layout_constraintStart_toStartOf="@+id/textView2"
-                    app:layout_constraintTop_toBottomOf="@+id/is_enable_hitokoto" />
+                    app:layout_constraintEnd_toEndOf="@+id/is_enable_hitokoto_sw"
+                    app:layout_constraintStart_toStartOf="@+id/is_enable_hitokoto_tv"
+                    app:layout_constraintTop_toBottomOf="@+id/is_enable_hitokoto_sw" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
@@ -166,20 +167,20 @@
                     android:textSize="15sp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
-                    android:onClick="selectFontColor"
+                    android:onClick="onTextViewClick"
                     app:layout_constraintTop_toBottomOf="@id/effect_title"
-                    app:layout_constraintBottom_toTopOf="@id/font_size_textview"
+                    app:layout_constraintBottom_toTopOf="@id/font_size_tv"
                     app:layout_constraintStart_toStartOf="@id/effect_title"/>
 
                 <TextView
-                    android:id="@+id/font_size_textview"
+                    android:id="@+id/font_size_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:fontFamily="serif"
-                    android:onClick="selectFontSize"
+                    android:onClick="onTextViewClick"
                     android:padding="15dp"
                     android:text="字体大小"
                     android:textColor="@color/color_txt"
@@ -221,36 +222,36 @@
                     android:textSize="15sp"
                     app:layout_constraintTop_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintBottom_toTopOf="@+id/history_textview"/>
+                    app:layout_constraintBottom_toTopOf="@+id/history_tv"/>
 
                 <TextView
-                    android:id="@+id/history_textview"
+                    android:id="@+id/history_tv"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:fontFamily="serif"
-                    android:onClick="showHistory"
+                    android:onClick="onTextViewClick"
                     android:padding="15dp"
                     android:text="历史记录"
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
                     app:layout_constraintTop_toBottomOf="@+id/other_title"
-                    app:layout_constraintBottom_toTopOf="@id/feedback"/>
+                    app:layout_constraintBottom_toTopOf="@id/feedback_tv"/>
 
                 <TextView
-                    android:id="@+id/feedback"
+                    android:id="@+id/feedback_tv"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:background="?android:attr/selectableItemBackground"
                     android:clickable="true"
                     android:fontFamily="serif"
-                    android:onClick="feedBack"
+                    android:onClick="onTextViewClick"
                     android:padding="15dp"
                     android:text="邮件反馈"
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
-                    app:layout_constraintTop_toBottomOf="@+id/history_textview"
+                    app:layout_constraintTop_toBottomOf="@+id/history_tv"
                     app:layout_constraintBottom_toTopOf="@id/version_tv"/>
 
                 <TextView
@@ -265,7 +266,7 @@
                     android:textColor="@color/color_txt"
                     android:textSize="15sp"
 
-                    app:layout_constraintTop_toBottomOf="@+id/feedback"/>
+                    app:layout_constraintTop_toBottomOf="@+id/feedback_tv"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
